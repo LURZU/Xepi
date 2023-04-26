@@ -1,8 +1,12 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Link, Tabs } from 'expo-router';
 import { Pressable, useColorScheme } from 'react-native';
-
+import  AuthProvider  from '../../components/provider/AuthContext';
 import Colors from '../../constants/Colors';
+import { Feather } from '@expo/vector-icons'; 
+import { FontAwesome5 } from '@expo/vector-icons';
+
+
 
 /**
  * You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
@@ -18,6 +22,7 @@ export default function TabLayout() {
   const colorScheme = useColorScheme();
 
   return (
+    <AuthProvider>
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
@@ -25,8 +30,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Tab One',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          title: 'Map',
+          tabBarIcon: ({ color }) => <Feather name="map-pin" size={24} color="white" />,
           headerRight: () => (
             <Link href="/modal" asChild>
               <Pressable>
@@ -44,12 +49,21 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="two"
+        name="profil"
         options={{
-          title: 'Tab Two',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          title: 'profil',
+          tabBarIcon: ({ color }) => <FontAwesome name="user" size={24} color="white" />,
         }}
       />
+       <Tabs.Screen
+        name="don"
+        options={{
+          title: 'Don',
+          tabBarIcon: ({ color }) => <FontAwesome5 name="money-check-alt" size={24} color="white" />,
+        }}
+      />
+     
     </Tabs>
+    </AuthProvider>
   );
 }
