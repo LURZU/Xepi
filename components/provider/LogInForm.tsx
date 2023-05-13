@@ -1,53 +1,71 @@
 import React, { useState, useContext } from 'react';
-import { Button, TextInput, View, StyleSheet, Text, Modal, Alert, Pressable } from 'react-native';
-import { FontAwesome } from '@expo/vector-icons'; 
+import { Button, TextInput, View, StyleSheet, Text, Modal, Alert, Pressable, ActivityIndicator } from 'react-native';
+import { FontAwesome } from '@expo/vector-icons';
 import { AuthContext } from './AuthContext'
+import SignInForm from './SignInForm'
 import { LinearGradient } from 'expo-linear-gradient';
 
 function LoginInform() {
   const [isModalVisible, setIsModalVisible] = useState(true);
-
-  const { user } = useContext(AuthContext);
+  const { user, error } = useContext(AuthContext);
+  const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { signIn } = useContext(AuthContext);
-
+  const { signIn, setError, setUser } = useContext(AuthContext);
   let name: React.ComponentProps<typeof FontAwesome>['name'] = "eye"
-
   const [show, setShow] = useState(name);
   const [secure, setSecure] = useState(true);
+  const [signUpState, setSignUp] = useState({
+    signUpState: false,
+  })
 
-  // To close the modal when usecontext return true for connected
   const closeModal = () => {
-    signIn(email, password, false);
-    if(user?.connected) {
+   
+    if (user?.connected && user.isEmailVerified) {
+      setUser({
+        email: user?.email, password: user?.password, connected: user?.connected, isEmailVerified: true
+      })
+ 
       setIsModalVisible(false);
-    } else if(user?.connected !== undefined){
-      Alert.alert('Erreur de connexion', 'Identifiant ou mot de passe incorrect', [
-        {text: 'OK'},
+    } else if (user?.connected && user?.isEmailVerified === false) {
+      setIsLoading(false);
+      Alert.alert('Email non vérifié', 'Vous avez reçu un mail dans votre boîte mail', [
+        { text: 'OK' },
       ]);
+      setUser({
+        email: user?.email, password: user?.password, connected: user?.connected, isEmailVerified: false
+      })
+      setIsModalVisible(true);
     }
   };
 
-  // Change password visibility
   const showPassword = () => {
-    if(show === "eye") {
+    if (show === "eye") {
       setShow("eye-slash");
       setSecure(false)
     } else {
       setShow("eye");
       setSecure(true)
     }
-
-    
   };
 
+  const handleSignIn = async () => {
+    setIsLoading(true);
+    try {
+      signIn(email, password, false);
+      // Connexion réussie, effectuez les actions nécessaires ici
+      closeModal();
+    } catch (error) {
+      // Une erreur s'est produite lors de la connexion, gérez l'erreur ici
+      setIsLoading(false);
+    }
+  };
+  
 
-
-  const handleSignIn = () => {
-    signIn(email, password, false);
-    console.log(user?.connected)
-    closeModal();
+  const handleSignUp = () => {
+    setSignUp({
+      signUpState: true,
+    })
   };
 
   return (
@@ -70,7 +88,7 @@ function LoginInform() {
                   value={email}
                   onChangeText={setEmail}
                   placeholderTextColor="#000"
-                  placeholder="Nom d'utilisateur"
+                  placeholder="Email"
                   style={styles.inputText}
                   testID ='auth-login'
                 />
@@ -83,7 +101,7 @@ function LoginInform() {
                   value={password}
                   placeholderTextColor="#000"
                   onChangeText={setPassword}
-                  placeholder="Password"
+                  placeholder="Mot de passe"
                   secureTextEntry={secure}
                   style={styles.inputText}
                   testID ='auth-password'
@@ -93,17 +111,40 @@ function LoginInform() {
                 </Pressable>
               </View>
               
-            <Pressable style={styles.logInButton} onPress={handleSignIn} testID='auth-button'> 
-            <Text style={{color: "#000", textAlign: "center"}}>Se connecter</Text>
-            {/* </LinearGradient> */}
+            <Pressable style={(pressed) => [{ backgroundColor: pressed ? '#ffb06b' : '#FFF', },styles.logInButton]} onPress={handleSignIn} testID='auth-button'> 
+            <Text style={{color: "#FFF", fontSize: 20,textAlign: "center", fontWeight: 'bold'}}>Se connecter</Text>
             </ Pressable>
+
+            <Text style={{textAlign: 'center', marginTop: 20, }}>Pas encore inscrit ?</Text>
+            <Pressable onPress={handleSignUp}><Text style={{color: '#F9943B', textAlign: 'center', fontSize: 14, textDecorationLine: 'underline'}}>S'inscrire</Text></Pressable>
           </View>
-      </Modal>   
+      </Modal> 
+
+        <SignInForm visible={signUpState.signUpState}/>
+
+        {isLoading && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
+      )}
     </>
   );
 }
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    width:'100%',
+    height:'100%',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)', // Arrière-plan semi-transparent
+  },
   left:{
     textAlign: 'left',
     marginBottom: 10,
@@ -120,13 +161,15 @@ const styles = StyleSheet.create({
   },
   logInButton: {
     marginTop: 20,
-    paddingVertical: 20,
+    paddingVertical: 15,
     paddingHorizontal: 'auto',
     borderRadius: 15,
     color: "#FFF",
     fontSize: 30,
     backgroundColor: '#F9943B',
     width: '85%',
+    marginLeft: 'auto',
+    marginRight: 'auto',
     alignItems: 'center',
   },
   iconRight: {
@@ -168,7 +211,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   inputText: {
-    backgroundColor: "#FFF",
+    backgroundColor: "#F2F2F2",
     color: "#000000",
     height: 57,
     flex: 1,
@@ -178,7 +221,7 @@ const styles = StyleSheet.create({
   title: {
     textAlign: 'center',
     fontSize: 32,
-    fontFamily: 'inter' as any,
+    fontFamily: 'Inter' as any,
     marginBottom: 30,
     fontWeight: 'bold',
     color: "#000000",
@@ -194,9 +237,16 @@ const styles = StyleSheet.create({
   },
   inputLog: {
     color: "#000",
+    backgroundColor: "#F2F2F2",
     height: 60,
-    borderWidth: 1,
-    borderColor: "#000",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
+    elevation: 4,
     borderRadius: 20,
     marginBottom: 15,
     width: '85%',

@@ -2,6 +2,7 @@ import { StyleSheet, Image } from 'react-native';
 
 import { Text, View } from '../../components/Themed';
 import ProfilScreen from '../../components/global/ProfilScreen';
+import React from 'react';
 
 export default function TabTwoScreen() {
   return (
