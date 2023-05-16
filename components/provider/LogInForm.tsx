@@ -4,6 +4,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import { AuthContext } from './AuthContext'
 import SignInForm from './SignInForm'
 import { LinearGradient } from 'expo-linear-gradient';
+import HideInput  from '../input/HideInput';
 
 function LoginInform() {
   const [isModalVisible, setIsModalVisible] = useState(true);
@@ -12,18 +13,52 @@ function LoginInform() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { signIn, setError, setUser } = useContext(AuthContext);
-  let name: React.ComponentProps<typeof FontAwesome>['name'] = "eye"
-  const [show, setShow] = useState(name);
-  const [secure, setSecure] = useState(true);
+
   const [signUpState, setSignUp] = useState({
     signUpState: false,
   })
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+
+  const validateEmail = () => {
+    if (!email) {
+      setEmailError('Veuillez entrer votre adresse e-mail');
+      return false;
+    }
+
+    // Vérification de l'email avec une expression régulière
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setEmailError('Adresse e-mail invalide');
+      return false;
+    }
+
+    setEmailError('');
+    return true;
+  };
+
+  const validatePassword = () => {
+    if (!password || password.length === 0) {
+      setPasswordError('Veuillez entrer votre mot de passe');
+      return false;
+    }
+ 
+    if (password.length < 8) {
+      setPasswordError('Le mot de passe doit contenir au moins 8 caractères');
+      return false;
+    }
+
+    setPasswordError('');
+    return true;
+  };
 
   const closeModal = () => {
-   
+    if (!validateEmail() || !validatePassword()) {
+      return;
+    }
     if (user?.connected && user.isEmailVerified) {
       setUser({
-        email: user?.email, password: user?.password, connected: user?.connected, isEmailVerified: true
+        email: user?.email, password: user?.password, connected: user?.connected, isEmailVerified: true, firstconnexion: user?.firstconnexion, type: user?.type
       })
  
       setIsModalVisible(false);
@@ -33,20 +68,16 @@ function LoginInform() {
         { text: 'OK' },
       ]);
       setUser({
-        email: user?.email, password: user?.password, connected: user?.connected, isEmailVerified: false
+        email: user?.email, password: user?.password, connected: user?.connected, isEmailVerified: false,  firstconnexion: user?.firstconnexion, type: user?.type
       })
       setIsModalVisible(true);
     }
   };
 
-  const showPassword = () => {
-    if (show === "eye") {
-      setShow("eye-slash");
-      setSecure(false)
-    } else {
-      setShow("eye");
-      setSecure(true)
-    }
+
+
+  const handlePasswordChange = (value: string) => {
+    setPassword(value);
   };
 
   const handleSignIn = async () => {
@@ -61,10 +92,15 @@ function LoginInform() {
     }
   };
   
-
   const handleSignUp = () => {
     setSignUp({
       signUpState: true,
+    })
+  };
+
+  const handleVisibilityChange = (value: boolean) => {
+    setSignUp({
+      signUpState: value,
     })
   };
 
@@ -93,23 +129,10 @@ function LoginInform() {
                   testID ='auth-login'
                 />
               </View>
+              {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
 
-              <Text style={styles.left}>Mot de passe</Text>
-              <View style={styles.inputLog}>
-              <FontAwesome name="lock" size={24} color="black" style={styles.icon} />
-                <TextInput
-                  value={password}
-                  placeholderTextColor="#000"
-                  onChangeText={setPassword}
-                  placeholder="Mot de passe"
-                  secureTextEntry={secure}
-                  style={styles.inputText}
-                  testID ='auth-password'
-                />
-                <Pressable style={styles.iconRight} onPress={showPassword}>
-                  <FontAwesome name={show} size={24} color="black" style={styles.iconRight} />
-                </Pressable>
-              </View>
+            <HideInput onPasswordChange={handlePasswordChange}/>
+            {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
               
             <Pressable style={(pressed) => [{ backgroundColor: pressed ? '#ffb06b' : '#FFF', },styles.logInButton]} onPress={handleSignIn} testID='auth-button'> 
             <Text style={{color: "#FFF", fontSize: 20,textAlign: "center", fontWeight: 'bold'}}>Se connecter</Text>
@@ -120,7 +143,7 @@ function LoginInform() {
           </View>
       </Modal> 
 
-        <SignInForm visible={signUpState.signUpState}/>
+        <SignInForm visible={signUpState.signUpState} onVisibityChange={handleVisibilityChange}/>
 
         {isLoading && (
         <View style={styles.loadingContainer}>
@@ -132,6 +155,13 @@ function LoginInform() {
 }
 
 const styles = StyleSheet.create({
+  errorText: {
+    marginTop: -10,
+    color: 'red',
+    fontSize: 14,
+    marginBottom: 10,
+    marginLeft: 25,
+  },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',

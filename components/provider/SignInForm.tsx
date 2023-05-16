@@ -2,54 +2,77 @@ import React, { useState, useContext, useEffect } from 'react';
 import { ActivityIndicator, TextInput, View, StyleSheet, Text, Modal, Alert, Pressable  } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons'; 
 import DropDownInput from '../input/DropDownInput';
+import HideInput from '../input/HideInput';
 import { AuthContext } from './AuthContext'
-import { Picker } from '@react-native-picker/picker';
-
-
-
 
 function SignInForm(props: any) {
   const { GuestSignIn, error, isLoading } = useContext(AuthContext);
   const [ isModalVisible, setIsModalVisible ] = useState(props.visible);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [selectedValue, setSelectedValue] = useState('Association');
+
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+
+  const validateEmail = () => {
+    if (!email) {
+      setEmailError('Veuillez entrer votre adresse e-mail');
+      return false;
+    }
+
+    // Vérification de l'email avec une expression régulière
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setEmailError('Adresse e-mail invalide');
+      return false;
+    }
+
+    setEmailError('');
+    return true;
+  };
+
+  const validatePassword = () => {
+    if (!password || password.length === 0) {
+      setPasswordError('Veuillez entrer votre mot de passe');
+      return false;
+    }
+ 
+    if (password.length < 8) {
+      setPasswordError('Le mot de passe doit contenir au moins 8 caractères');
+      return false;
+    }
+
+    setPasswordError('');
+    return true;
+  };
+
+  const handlePasswordChange = (value: string) => {
+    setPassword(value);
+  };
 
 
-
-  let name: React.ComponentProps<typeof FontAwesome>['name'] = "eye"
-
-  const [show, setShow] = useState(name);
-  const [secure, setSecure] = useState(true);
-
+  const handleSelectedValue = (value: string) => {
+    setSelectedValue(value);
+  };
 
 
   useEffect(() => {
     setIsModalVisible(props.visible);
   }, [props]);
 
-
-  // Change password visibility
-  const showPassword = () => {
-    if(show === "eye") {
-      setShow("eye-slash");
-      setSecure(false)
-    } else {
-      setShow("eye");
-      setSecure(true)
-    }
-  };
-
     // To close the modal when usecontext return true for connected
-
     const closeModal = () => {
-      GuestSignIn(email, password);
+      if (!validateEmail() || !validatePassword()) {
+        return;
+      }
+      GuestSignIn(email, password, selectedValue);
       console.log('user connected : '+error?.code_error)
       if(error?.code_error === 200) {
         setIsModalVisible(false);
         Alert.alert('Mail de vérification envoyé', 'Allez vérifier dans votre boîte mail', [
           {text: 'OK'},
         ]);
-        
       }
     };
 
@@ -59,14 +82,10 @@ function SignInForm(props: any) {
   };
 
   const handleSignIn = () => {
-    closeSignUpModal();
+    // closeSignUpModal();
+    props.onVisibityChange(false);
   };
 
-  // {isLoading ? (
-  //   <ActivityIndicator size="large" color="#0000ff" />
-  // ) : (
-    
-  // )}
 
   return (
     <>
@@ -94,32 +113,17 @@ function SignInForm(props: any) {
                   testID ='auth-login'
                 />
               </View>
+              {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
 
-              <Text style={styles.left}>Mot de passe</Text>
-              <View style={styles.inputLog}>
-              <FontAwesome name="lock" size={24} color="black" style={styles.icon} />
-                <TextInput
-                  value={password}
-                  placeholderTextColor="#000"
-                  onChangeText={setPassword}
-                  placeholder="Mot de passe"
-                  secureTextEntry={secure}
-                  style={styles.inputText}
-                  testID ='auth-password'
-                />
-                <Pressable style={styles.iconRight} onPress={showPassword}>
-                  <FontAwesome name={show} size={24} color="black" style={styles.iconRight} />
-                </Pressable>
-              </View>
+              <HideInput onPasswordChange={handlePasswordChange}/>
+              {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
 
               <Text style={styles.left}>Qui êtes-vous ?</Text>
-              <View style={styles.inputLog}>
-                <DropDownInput/>
-              </View>
+              <DropDownInput items={['Association', 'Particuliers']} onValueChange={handleSelectedValue}/>
 
-            <Pressable style={styles.logInButton} onPress={closeModal} testID='auth-button'> 
-            <Text style={{color: "#FFF", fontSize: 20,textAlign: "center", fontWeight: 'bold'}}>S'inscrire</Text>
-            </ Pressable>
+              <Pressable style={styles.logInButton} onPress={closeModal} testID='auth-button'> 
+              <Text style={{color: "#FFF", fontSize: 20,textAlign: "center", fontWeight: 'bold'}}>S'inscrire</Text>
+              </ Pressable>
 
             <Text style={{textAlign: 'center', marginTop: 20}}>Vous possedez déjà un compte ?</Text>
             <Pressable onPress={handleSignIn}><Text style={{color: '#F9943B', textAlign: 'center', fontSize: 14, textDecorationLine: 'underline'}}>Se connecter</Text></Pressable>
@@ -131,8 +135,13 @@ function SignInForm(props: any) {
 }
 
 const styles = StyleSheet.create({
-
-  
+  errorText: {
+    marginTop: -10,
+    color: 'red',
+    fontSize: 14,
+    marginBottom: 10,
+    marginLeft: 25,
+  },
   left:{
     textAlign: 'left',
     marginBottom: 10,

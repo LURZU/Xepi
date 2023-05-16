@@ -9,6 +9,8 @@ type User = {
   password: string;
   connected: boolean;
   isEmailVerified: boolean;
+  firstconnexion: boolean|null;
+  type: string|null;
 };
 
 type AuthContextType = {
@@ -54,6 +56,8 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     password: '',
     connected: false,
     isEmailVerified: false,
+    firstconnexion: null,
+    type: null,
   });
 
   const [error, setError] = useState({
@@ -78,7 +82,7 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       const accessToken = response.data.access_token;
       await SecureStore.setItemAsync('login_jwt', accessToken);
       const { exp } = jwt_decode(accessToken);
-  
+      
       //Vérification de la validité du token en comparant la date d'expiration avec la date actuelle
       if (exp < Date.now() / 1000) {
         await SecureStore.deleteItemAsync('login_jwt');
@@ -99,8 +103,11 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
           password,
           connected: false,
           isEmailVerified: false,
+          firstconnexion: false,
+          type: null,
         });
       } else {
+        console.log('Connexion : '+response.data.first_connexion);
         setError({
           error_msg: 'noerror' as string,
           code_error: 200 as number,
@@ -110,12 +117,13 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
           refreshToken: accessToken,
           authenticated: true,
         });
-        console.log("isEmailVerified:" + response.data.isEmailVerified);
         setUser({
           email,
           password,
           connected: true,
           isEmailVerified: response.data.isEmailVerified,
+          firstconnexion: response.data.first_connexion,
+          type: response.data.type,
         });
       }
     } catch (error: any) {
@@ -131,6 +139,8 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         password,
         connected: false,
         isEmailVerified: false,
+        firstconnexion: null,
+        type: null,
       });
     } finally {
       setIsLoading(false); // Désactiver l'indicateur de chargement
@@ -138,7 +148,8 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   };
   
 // Création d'un compte utilisateur lors de la connexion en tant qu'invité
-  const GuestSignIn = async (email: string, password: string) => {
+  const GuestSignIn = async (email: string, password: string, type: string) => {
+    console.log('dans le AuthContext : '+type)
     setIsLoading(true);
     const request = APIurl+`/users`;
       axios({
@@ -148,10 +159,11 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         data: {
           "email": email,
           "password": password,
-          "type": "user",
+          "type": type,
           "username": email,
           "isEmailVerified": false, 
-          "verificationToken": '', 
+          "verificationToken": '',
+          "first_connexion": true,
         }
       });
 
@@ -159,15 +171,17 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       email: email,
       password: password,
       username: email,
-      type: "user",
+      type: type,
       isEmailVerified: false, 
-      verificationToken: ''
+      verificationToken: '',
+      first_connexion: true,
     })
     .then((response) => {
       console.log(response);
       setError({ error_msg: 'Pas erreur' as string,
       code_error: 200 as number,}
       )
+      
     })
     .catch((error) => {
       console.error(error.response.data.message);
@@ -186,7 +200,7 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
   const signOut = async () => {
     await SecureStore.deleteItemAsync('login_jwt');
-    setUser({ email: '', password: '', connected: false, isEmailVerified: false});
+    setUser({ email: '', password: '', connected: false, isEmailVerified: false, firstconnexion: null, type: null});
     setAuthState({
       accessToken: '',
       refreshToken: '',
