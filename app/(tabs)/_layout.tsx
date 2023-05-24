@@ -1,16 +1,13 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Link, Tabs } from 'expo-router';
-import { Pressable, useColorScheme } from 'react-native';
+import { Pressable, useColorScheme, Image, Text } from 'react-native';
 import  AuthProvider  from '../../components/provider/AuthContext';
 import Colors from '../../constants/Colors';
-import { Feather } from '@expo/vector-icons'; 
-import { FontAwesome5 } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons'; 
+
+import React from 'react';
 
 
-
-/**
- * You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
- */
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>['name'];
   color: string;
@@ -26,22 +23,46 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-      }}>
+        tabBarInactiveTintColor: 'gray', 
+        tabBarLabelStyle: { fontSize: 12 }, 
+        tabBarStyle: {
+          backgroundColor: 'white',
+          elevation: 2, 
+          shadowColor: 'rgba(0, 0, 0, 0.1)', 
+          shadowOpacity: 1, 
+          shadowRadius: 3, 
+          shadowOffset: { width: 0, height: 2 }, 
+          marginLeft: 16,
+          marginRight: 16, 
+          marginBottom: 8, 
+          borderRadius: 8, 
+        },
+        tabBarShowLabel: false, 
+        tabBarIcon: ({ color }) => <FontAwesome name="map" size={24} color="grey" />,
+        headerTitle: 'XEPI',
+        headerRight: () => (
+          <Link href="/modal" asChild>
+            <Pressable style={{marginRight: 20}}>
+              {({ pressed }) => (
+                <Image source={require('../../assets/images/logo/icon_profil.png')}/>
+              )}
+            </Pressable>
+          </Link>
+        ),
+      }}
+      
+      >
       <Tabs.Screen
         name="index"
-        options={{
-          title: 'Map',
-          tabBarIcon: ({ color }) => <Feather name="map-pin" size={24} color="white" />,
+        options=
+        {{
+          tabBarIcon: ({ color }) => <FontAwesome name="map" size={24} color="grey" />,
+          headerTitle: 'XEPI',
           headerRight: () => (
             <Link href="/modal" asChild>
-              <Pressable>
+              <Pressable style={{marginRight: 20}}>
                 {({ pressed }) => (
-                  <FontAwesome
-                    name="info-circle"
-                    size={25}
-                    color={Colors[colorScheme ?? 'light'].text}
-                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                  />
+                  <Image source={require('../../assets/images/logo/icon_profil.png')}/>
                 )}
               </Pressable>
             </Link>
@@ -49,20 +70,38 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="profil"
+        name="liste"
         options={{
-          title: 'profil',
-          tabBarIcon: ({ color }) => <FontAwesome name="user" size={24} color="white" />,
+          title: '',
+          tabBarIcon: ({ color }) => <FontAwesome name="search" size={24} color="grey" />,
+        }}
+      />
+      <Tabs.Screen
+        name="association"
+        options={{
+          headerTitle: '',
+          headerLeft: () => (
+            <Link href="index" asChild>
+              <Pressable style={{marginLeft: 20}}>
+                {({ pressed }) => (
+                  <AntDesign name="back" size={40} color="white" />
+                )}
+              </Pressable>
+            </Link>
+          ),
+          tabBarIcon: ({ color }) => <FontAwesome name="list" size={24} color="grey" />,
+          headerTitleStyle: { color: 'white' },
+          headerTransparent: true
+          
         }}
       />
        <Tabs.Screen
-        name="don"
+        name="post"
         options={{
-          title: 'Don',
-          tabBarIcon: ({ color }) => <FontAwesome5 name="money-check-alt" size={24} color="white" />,
+          title: 'Post',
+          tabBarIcon: ({ color }) => <FontAwesome name="share" size={24} color="grey" />,
         }}
       />
-     
     </Tabs>
     </AuthProvider>
   );

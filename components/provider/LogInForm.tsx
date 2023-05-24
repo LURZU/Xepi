@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { Button, TextInput, View, StyleSheet, Text, Modal, Alert, Pressable, ActivityIndicator } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
-import { AuthContext } from './AuthContext'
+import { AuthContext } from './AuthContext';
 import SignInForm from './SignInForm'
 import { LinearGradient } from 'expo-linear-gradient';
 import HideInput  from '../input/HideInput';

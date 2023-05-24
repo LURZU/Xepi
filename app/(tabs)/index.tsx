@@ -6,11 +6,12 @@ import { Modal, Text, View, StyleSheet, Button, Alert } from 'react-native';
 
 import LoginInform from '../../components/provider/LogInForm';
 import { AuthContext } from '../../components/provider/AuthContext';
-// Rest of the import statements
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
-import { LinearGradient } from 'expo-linear-gradient';
+
 import FirstConnectAssociation from '../../components/parameters/first_connect_association';
+
+import MapScreen from '../../components/Screen/MapScreen';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -33,14 +34,13 @@ export default function App() {
   if (!fontsLoaded) {
     return null;
   }
-    console.log(user?.firstconnexion +' '+user?.type+' '+user?.isEmailVerified+' '+user?.connected)
+ 
     // If user is connected and email is verified11
     if(user?.connected && user?.isEmailVerified === true) {
       return(
         <View>
-          <Text style={styles.p}>Bienvenue, {user?.email}</Text>
-          <Text  style={styles.p}>Composant carte coming soon</Text>
-        </View>
+        <MapScreen/>
+      </View>
       )
     } else if(user?.type === 'Association') {
      console.log('Association')
@@ -51,14 +51,28 @@ export default function App() {
           <FirstConnectAssociation />
         </View>
       )
-    } 
+    } else if (user?.firstconnexion && user?.type === 'Association' && user?.isEmailVerified && user?.connected) {
+      console.log('Première connexion association')
+      return(
+        <View>
+          <FirstConnectAssociation />
+        </View>
+      )
+    } else if (user?.firstconnexion && user?.type === 'Particuliers' && user?.isEmailVerified && user?.connected) {
+      console.log('Première connexion particuliers')
+      return(
+        <View>
+          <MapScreen/>
+        </View>
+      )
+    }
 
-      return ( 
+
+return(
       <View >
-      <LoginInform />
+        <LoginInform />
       </View>  
-      );
-  
+)
     
 
 }

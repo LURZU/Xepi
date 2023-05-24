@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Modal } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Modal, Pressable } from 'react-native';
 import DropDownInput from '../input/DropDownInput';
 import { FontAwesome } from '@expo/vector-icons';
 
@@ -12,19 +12,23 @@ export default function FirstConnectAssociation(props: any) {
     const handleSelectedValue = (value: string) => {
         setSelectedValue(value);
       };
+      
 
     return (
         <>
         <Modal>
-        <Text style={{fontSize: 30}}>Vérification</Text>
-        //Type association 
-        <DropDownInput  items={['Association', 'Particuliers']} onValueChange={handleSelectedValue}/>
+        <Text style={{fontSize: 30, textAlign: 'center', marginTop: 50, marginBottom: 40, fontWeight: 'bold'}}>Questionnaire</Text>
 
-        //What is the goal of the association
-        <DropDownInput/>
+        <Text style={styles.left}>Quel type d'association êtes-vous ?</Text>
+        <DropDownInput  items={['Vêtement', 'Autre']} onValueChange={handleSelectedValue}/>
 
-        //What is the name of the association
-        <Text style={styles.left}>Nom ou mail</Text>
+        <Text style={styles.left}>Etes-vous à but ...</Text>
+        <DropDownInput  items={['Non lucratif', 'lucratif']} onValueChange={handleSelectedValue}/>
+
+        <Text style={styles.left}>Quelle est votre objectif principal ?</Text>
+        <DropDownInput  items={['Obtenir plus de don', 'Trouver plus de bénévole']} onValueChange={handleSelectedValue}/>
+
+        <Text style={styles.left}>Numéros de SIREN</Text>
         <View style={styles.inputLog}>
             <FontAwesome name="user" size={24} color="black" style={styles.icon}/>
             <TextInput
@@ -36,6 +40,10 @@ export default function FirstConnectAssociation(props: any) {
             testID ='auth-login'
             />
         </View>
+
+        <Pressable style={styles.logInButton} testID='auth-button'> 
+              <Text style={{color: "#FFF", fontSize: 20,textAlign: "center", fontWeight: 'bold'}}>Envoyer</Text>
+              </ Pressable>
         </Modal>
         </>
     );
@@ -43,6 +51,19 @@ export default function FirstConnectAssociation(props: any) {
 
 
 const styles = StyleSheet.create({
+  logInButton: {
+    marginTop: 20,
+    paddingVertical: 15,
+    paddingHorizontal: 'auto',
+    borderRadius: 15,
+    color: "#FFF",
+    fontSize: 30,
+    backgroundColor: '#F9943B',
+    width: '40%',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    alignItems: 'center',
+  },
     inputText: {
         backgroundColor: "#F2F2F2",
         color: "#000000",
@@ -98,7 +119,8 @@ const styles = StyleSheet.create({
         },
         left:{
             textAlign: 'left',
-            marginBottom: 10,
+            marginTop: 20,
+            marginBottom:15,
             marginLeft: 25,
             width: '85%',
           }

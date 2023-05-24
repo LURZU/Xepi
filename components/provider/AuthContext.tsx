@@ -3,6 +3,8 @@ import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import jwt_decode from 'jwt-decode';
 import { Alert, ActivityIndicator  } from 'react-native';
+import { API_URL } from '@env';
+
 
 type User = {
   email: string;
@@ -47,8 +49,10 @@ const getUserFromAsync = async (request: string) => {
 
 
 const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const APIurl = "http://10.0.2.2:3000"
+  // Utilisation des variables d'environnement
 
+  const APIurl = API_URL;
+  console.log(APIurl);
   const [isLoading, setIsLoading] = useState(false);
 
   const [user, setUser] = useState<User | null>({
