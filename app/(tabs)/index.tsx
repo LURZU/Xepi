@@ -34,7 +34,13 @@ export default function App() {
   if (!fontsLoaded) {
     return null;
   }
- 
+
+  // Enlever commentaire pour utiliser l'app sans le login
+  // return(
+  //   <View>
+  //   <MapScreen/>
+  // </View>
+  // )
     // If user is connected and email is verified11
     if(user?.connected && user?.isEmailVerified === true) {
       return(
