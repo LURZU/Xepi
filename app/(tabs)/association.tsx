@@ -43,6 +43,7 @@ export default function DonMateriel() {
     setSpecify(['Aide alimentaire', 'Aide vestimentaire', 'Aide financière', 'Aide matérielle']);
     }, [])
 
+    //Select color by index and item index
     const getColorByIndex = (columnIndex: number, itemIndex: number) => {
       const colors = [
         ['#FDD4B0', '#F7B9B4', '#FDE6A2', '#BCD4FB'],
@@ -52,7 +53,9 @@ export default function DonMateriel() {
       return colors[columnIndex % colors.length][itemIndex % colors[columnIndex % colors.length].length];
     };
   
+    //Render items for each column with a start position and end in props
     const renderItems = (start: number, end: number, columnIndex: number) => {
+      //Return a list of items
       return specify.slice(start, end).map((item, index) => (
         <Text
           key={index}
@@ -66,13 +69,11 @@ export default function DonMateriel() {
     const renderScene = SceneMap({
       materiel: () => (
         <View style={styles.tabContent}>
-          {/* Contenu de l'onglet "Don matériel" */}
           <Text>Contenu du don matériel</Text>
         </View>
       ),
       financier: () => (
         <View style={styles.tabContent}>
-          {/* Contenu de l'onglet "Don financier" */}
           <Text>Contenu du don financier</Text>
         </View>
       ),
@@ -99,7 +100,7 @@ export default function DonMateriel() {
       <View style={{width: '100%', marginTop: 30}}>
         <Text style={styles.text}>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris tincidunt viverra leo at placerat. Morbi tincidunt, dolor ut ornare dictum, elit ipsum vehicula dui, vel suscipit mauris ante non ante. Sed lacinia aliquet quam ut ullamcorper. Integer turpis sapien, consectetur at vestibulum ut, gravida sit amet felis. </Text>
       </View>
-      <Text style={styles.blackTitle}>Que faisons nous ?</Text>
+      <Text style={styles.whiteTitle}>Que faisons nous ?</Text>
       <View style={styles.row}>
         <View style={styles.column}>
           {renderItems(0, Math.ceil(specify.length / 2), 0)} 
@@ -108,8 +109,7 @@ export default function DonMateriel() {
           {renderItems(Math.ceil(specify.length / 2), specify.length, 1)} 
         </View>
       </View>
-
-      <Text style={styles.blackTitle}>Faire un don</Text>
+      <Text style={styles.whiteTitle}>Faire un don</Text>
       <TabView
       navigationState={{ index: activeTab, routes: tabs }}
       renderScene={renderScene}
@@ -117,11 +117,12 @@ export default function DonMateriel() {
       renderTabBar={(props) => (
         <TabBar
           {...props}
+          navigationState={props.navigationState} // Ajoutez cette ligne
           indicatorStyle={styles.tabIndicator}
           style={styles.tabBar}
           labelStyle={styles.tabLabel}
         />
-        )}
+      )}
       />
 
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
@@ -141,9 +142,9 @@ const styles = StyleSheet.create({
     height: 150,
   },
   text: {
-    fontSize: 20,
+    fontSize: 14,
     fontFamily: 'Roboto',
-    color : 'black',
+    color : 'white',
   },
   backgroundImage: {
     flex: 1,
@@ -156,19 +157,19 @@ const styles = StyleSheet.create({
     height: 250,
   },
   title: {
-    marginTop: 90,
+    marginTop: 125,
     marginLeft: 30,
-    fontSize: 50,
-    width: '50%',
+    fontSize: 40,
+    width: '75%',
     fontWeight: 'bold',
     color: 'white',
   },
-  blackTitle: {
+  whiteTitle: {
     marginTop: 15,
     marginBottom: 15,
     fontSize: 35,
     fontWeight: 'bold',
-    color: 'black',
+    color: 'white',
   },
   selectedImage: {
     width: 200,
@@ -186,7 +187,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textTransform: 'uppercase',
     backgroundColor: '#FDD4B0',
-    fontSize: 20,
+    fontSize: 16,
     borderRadius: 8,
     padding: 16,
     marginBottom: 8,

@@ -71,8 +71,6 @@ const AssociationForm = () => {
       try {
         const response = await axios.post(API_URL+'/associations/add', associationObj);
 
-        console.log(response);
-
         if (response.status === 200 || response.status === 201) {
           setRna('');
           setName('');

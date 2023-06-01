@@ -96,6 +96,8 @@ const styles = StyleSheet.create({
   map: {
     width: "100%",
     height: "100%",
+    position: "relative",
+    bottom: 0,
   },
   title: {
     fontSize: 25,

@@ -1,19 +1,17 @@
 import React, { useState, useContext } from 'react';
-import { Button, TextInput, View, StyleSheet, Text, Modal, Alert, Pressable, ActivityIndicator } from 'react-native';
+import { TextInput, View, StyleSheet, Text, Modal, Alert, Pressable, ActivityIndicator } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { AuthContext } from './AuthContext';
 import SignInForm from './SignInForm'
-import { LinearGradient } from 'expo-linear-gradient';
 import HideInput  from '../input/HideInput';
 
 function LoginInform() {
   const [isModalVisible, setIsModalVisible] = useState(true);
-  const { user, error } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { signIn, setError, setUser } = useContext(AuthContext);
-
+  const { signIn, setUser } = useContext(AuthContext);
   const [signUpState, setSignUp] = useState({
     signUpState: false,
   })
@@ -37,6 +35,7 @@ function LoginInform() {
     return true;
   };
 
+  //Verify if password is valide
   const validatePassword = () => {
     if (!password || password.length === 0) {
       setPasswordError('Veuillez entrer votre mot de passe');
@@ -47,16 +46,18 @@ function LoginInform() {
       setPasswordError('Le mot de passe doit contenir au moins 8 caractères');
       return false;
     }
-
+    //Reset usestate passwordError
     setPasswordError('');
     return true;
   };
 
+  //Veirfy if email is valide and password is valide and close modal
   const closeModal = () => {
     if (!validateEmail() || !validatePassword()) {
       return;
     }
     if (user?.connected && user.isEmailVerified) {
+      //set AuthContext user to true with value 
       setUser({
         email: user?.email, password: user?.password, connected: user?.connected, isEmailVerified: true, firstconnexion: user?.firstconnexion, type: user?.type
       })
@@ -117,7 +118,7 @@ function LoginInform() {
         <View style={styles.inputBox}>
             <Text style={styles.title}>Connectez-vous</Text>
 
-              <Text style={styles.left}>Nom ou mail</Text>
+              <Text style={styles.left}>Mail</Text>
               <View style={styles.inputLog}>
                 <FontAwesome name="user" size={24} color="black" style={styles.icon}/>
                 <TextInput
@@ -142,7 +143,9 @@ function LoginInform() {
             <Pressable onPress={handleSignUp}><Text style={{color: '#F9943B', textAlign: 'center', fontSize: 14, textDecorationLine: 'underline'}}>S'inscrire</Text></Pressable>
           </View>
       </Modal> 
-
+        {
+        // If user click on sign up button, set handleVisibilityChange to true and send to the component SignInForm
+        }
         <SignInForm visible={signUpState.signUpState} onVisibityChange={handleVisibilityChange}/>
 
         {isLoading && (

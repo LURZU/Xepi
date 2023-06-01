@@ -1,12 +1,15 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { ActivityIndicator, TextInput, View, StyleSheet, Text, Modal, Alert, Pressable  } from 'react-native';
+import { ActivityIndicator, TextInput, View, StyleSheet, Text, Modal, Alert, Image, Pressable  } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons'; 
 import DropDownInput from '../input/DropDownInput';
 import HideInput from '../input/HideInput';
+import Checkbox from 'expo-checkbox';
+
 import { AuthContext } from './AuthContext'
 
 function SignInForm(props: any) {
   const { GuestSignIn, error, isLoading } = useContext(AuthContext);
+  const [isChecked, setChecked] = useState(false);
   const [ isModalVisible, setIsModalVisible ] = useState(props.visible);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -56,29 +59,40 @@ function SignInForm(props: any) {
     setSelectedValue(value);
   };
 
-
   useEffect(() => {
     setIsModalVisible(props.visible);
   }, [props]);
 
-    // To close the modal when usecontext return true for connected
-    const closeModal = () => {
-      if (!validateEmail() || !validatePassword()) {
-        return;
-      }
-      GuestSignIn(email, password, selectedValue);
-      console.log('user connected : '+error?.code_error)
-      if(error?.code_error === 200) {
-        setIsModalVisible(false);
-        Alert.alert('Mail de vérification envoyé', 'Allez vérifier dans votre boîte mail', [
-          {text: 'OK'},
-        ]);
-      }
-    };
+  // To close the modal when usecontext return true for connected
+  const closeModal = () => {
+    if (!validateEmail() || !validatePassword() || !isChecked) {
+      return;
+    }
+    
+    GuestSignIn(email, password, selectedValue);
+    
+    if(error?.code_error === 200) {
+      return (
+        <Modal
+          animationType="slide"
+          visible={isModalVisible}
+          style={styles.Modal}
+          onRequestClose={closeModal}
+        >
+          <View style={styles.inputBox}>
+            <Text style={{fontSize: 20}}>MERCI</Text>
+            <Text style={{fontSize: 20}}>pour votre inscription</Text>
+            <Image source={require('../../assets/images/illustration/confirmation_illustration.png')}/>
+          </View>
+        </Modal>
+
+      )
+    }
+  };
+
 
   const closeSignUpModal = () => {
     setIsModalVisible(false);
-   
   };
 
   const handleSignIn = () => {
@@ -96,7 +110,6 @@ function SignInForm(props: any) {
       animationType="slide"
       visible={isModalVisible}
       style={styles.Modal}
-      onRequestClose={closeSignUpModal}
       >
         <View style={styles.inputBox}>
             <Text style={styles.title}>S'inscrire</Text>
@@ -117,9 +130,22 @@ function SignInForm(props: any) {
 
               <HideInput onPasswordChange={handlePasswordChange}/>
               {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
+              
 
+              <View style={{marginHorizontal: 20}}>
               <Text style={styles.left}>Qui êtes-vous ?</Text>
               <DropDownInput items={['Association', 'Particuliers']} onValueChange={handleSelectedValue}/>
+
+              <View style={styles.section}>
+                <Checkbox
+                  style={styles.checkbox}
+                  value={isChecked}
+                  onValueChange={setChecked}
+                  color={isChecked ? '#4630EB' : undefined}
+                />
+                <Text style={styles.paragraph}>J'ai lu et j'accepte les conditions générales d'utilisation du service auquel je souscris</Text>
+                {passwordError ? <Text style={styles.errorText}>Veuillez cocher cette case</Text> : null}
+              </View>
 
               <Pressable style={styles.logInButton} onPress={closeModal} testID='auth-button'> 
               <Text style={{color: "#FFF", fontSize: 20,textAlign: "center", fontWeight: 'bold'}}>S'inscrire</Text>
@@ -127,7 +153,8 @@ function SignInForm(props: any) {
 
             <Text style={{textAlign: 'center', marginTop: 20}}>Vous possedez déjà un compte ?</Text>
             <Pressable onPress={handleSignIn}><Text style={{color: '#F9943B', textAlign: 'center', fontSize: 14, textDecorationLine: 'underline'}}>Se connecter</Text></Pressable>
-          </View>
+            </View>
+            </View>
         </Modal>
         )}
     </>
@@ -271,6 +298,19 @@ const styles = StyleSheet.create({
     width: '80%',
   },
   Modal: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  section: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 20,
+    width: '85%',
+  },
+  paragraph: {
+    fontSize: 13,
+  },
+  checkbox: {
+    marginLeft: 15,
+    margin: 8,
+  },
 });
 
 

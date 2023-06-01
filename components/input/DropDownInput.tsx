@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
         padding: 0,
         paddingHorizontal: 0,
         borderRadius: 20,
-        width: '85%', 
+        width: '100%', 
         alignSelf: 'center', 
         overflow: 'visible',
 

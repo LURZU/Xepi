@@ -7,6 +7,7 @@ import { API_URL } from '@env';
 
 
 type User = {
+  id: number|null;
   email: string;
   password: string;
   connected: boolean;
@@ -52,10 +53,10 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // Utilisation des variables d'environnement
 
   const APIurl = API_URL;
-  console.log(APIurl);
   const [isLoading, setIsLoading] = useState(false);
 
   const [user, setUser] = useState<User | null>({
+    id: null,
     email: '',
     password: '',
     connected: false,
@@ -80,6 +81,7 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     setIsLoading(true); // Activer l'indicateur de chargement
   
     const request = APIurl + `/auth/connect/${email}/${password}`;
+    console.log(request);
     // Récupération du token
     try {
       const response = await axios.get(request);
@@ -103,6 +105,7 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
           { text: 'OK' },
         ]);
         setUser({
+          id: null,
           email,
           password,
           connected: false,
@@ -122,6 +125,7 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
           authenticated: true,
         });
         setUser({
+          id: response.data._id,
           email,
           password,
           connected: true,
@@ -139,6 +143,7 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         code_error: 20,
       });
       setUser({
+        id: null,
         email,
         password,
         connected: false,
@@ -153,7 +158,6 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   
 // Création d'un compte utilisateur lors de la connexion en tant qu'invité
   const GuestSignIn = async (email: string, password: string, type: string) => {
-    console.log('dans le AuthContext : '+type)
     setIsLoading(true);
     const request = APIurl+`/users`;
       axios({
@@ -168,6 +172,13 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
           "isEmailVerified": false, 
           "verificationToken": '',
           "first_connexion": true,
+          'phone': '',
+          'firstname': '',
+          'lastname': '',
+          'role' : '',
+          'address': '',
+          'bool_newsletter': false,
+          
         }
       });
 
@@ -179,13 +190,18 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       isEmailVerified: false, 
       verificationToken: '',
       first_connexion: true,
+      phone: '',
+      first_name: '',
+      last_name: '',
+      role : '',
+      address: '',
+      bool_newsletter: false,
     })
     .then((response) => {
       console.log(response);
       setError({ error_msg: 'Pas erreur' as string,
       code_error: 200 as number,}
       )
-      
     })
     .catch((error) => {
       console.error(error.response.data.message);
@@ -204,7 +220,7 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
   const signOut = async () => {
     await SecureStore.deleteItemAsync('login_jwt');
-    setUser({ email: '', password: '', connected: false, isEmailVerified: false, firstconnexion: null, type: null});
+    setUser({ id: 0, email: '', password: '', connected: false, isEmailVerified: false, firstconnexion: null, type: null});
     setAuthState({
       accessToken: '',
       refreshToken: '',

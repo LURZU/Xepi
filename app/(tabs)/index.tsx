@@ -2,16 +2,15 @@
 
 
 import React, { useCallback, useContext, useState } from 'react';
-import { Modal, Text, View, StyleSheet, Button, Alert } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 
 import LoginInform from '../../components/provider/LogInForm';
 import { AuthContext } from '../../components/provider/AuthContext';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
-
 import FirstConnectAssociation from '../../components/parameters/first_connect_association';
-
 import MapScreen from '../../components/Screen/MapScreen';
+import FirstConnectParticuliers from '../../components/parameters/first_connect_particuliers';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -36,26 +35,18 @@ export default function App() {
   }
 
   // Enlever commentaire pour utiliser l'app sans le login
-  // return(
-  //   <View>
-  //   <MapScreen/>
-  // </View>
-  // )
+  return(
+    <View>
+      {/* <MapScreen/> */}
+    </View>
+  )
     // If user is connected and email is verified11
-    if(user?.connected && user?.isEmailVerified === true) {
+    // console.log(user?.firstconnexion+' '+user?.type+' '+user?.isEmailVerified+' '+user?.connected+' '+user?.id)
+    if(user?.connected && user?.isEmailVerified === true && user?.type === 'Particuliers' && !user?.firstconnexion) {
       return(
         <View>
         <MapScreen/>
       </View>
-      )
-    } else if(user?.type === 'Association') {
-     console.log('Association')
-    } else if (user?.firstconnexion && user?.type === 'Association' && user?.isEmailVerified && user?.connected) {
-      console.log('Première connexion association')
-      return(
-        <View>
-          <FirstConnectAssociation />
-        </View>
       )
     } else if (user?.firstconnexion && user?.type === 'Association' && user?.isEmailVerified && user?.connected) {
       console.log('Première connexion association')
@@ -68,7 +59,7 @@ export default function App() {
       console.log('Première connexion particuliers')
       return(
         <View>
-          <MapScreen/>
+          <FirstConnectParticuliers />
         </View>
       )
     }
