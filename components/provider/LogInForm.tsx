@@ -59,7 +59,7 @@ function LoginInform() {
     if (user?.connected && user.isEmailVerified) {
       //set AuthContext user to true with value 
       setUser({
-        email: user?.email, password: user?.password, connected: user?.connected, isEmailVerified: true, firstconnexion: user?.firstconnexion, type: user?.type
+        email: user?.email, password: user?.password, connected: user?.connected, isEmailVerified: true, firstconnexion: user?.firstconnexion, type: user?.type, id: user?.id, profile_picture: user?.profile_picture
       })
  
       setIsModalVisible(false);
@@ -69,14 +69,13 @@ function LoginInform() {
         { text: 'OK' },
       ]);
       setUser({
-        email: user?.email, password: user?.password, connected: user?.connected, isEmailVerified: false,  firstconnexion: user?.firstconnexion, type: user?.type
+        email: user?.email, password: user?.password, connected: user?.connected, isEmailVerified: false,  firstconnexion: user?.firstconnexion, type: user?.type, id: user?.id, profile_picture: user?.profile_picture
       })
       setIsModalVisible(true);
     }
   };
 
-
-
+  //Set email value
   const handlePasswordChange = (value: string) => {
     setPassword(value);
   };

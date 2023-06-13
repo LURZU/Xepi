@@ -1,56 +1,105 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Modal, StyleSheet, Button } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import { Platform, Pressable, StyleSheet } from 'react-native';
+import { Text, Image, Button} from 'react-native';
+import { View } from '../components/Themed';
+import React, { useContext, useEffect, useState } from 'react';
+import { AuthContext } from '../components/provider/AuthContext';
+import ProfilScreen from '../components/Screen/ProfilAssocScreen';
+import ProfilAssocScreen from '../components/Screen/ProfilAssocScreen';
+import ProfilePicture from '../components/Screen/ProfilePicture';
+import { API_URL } from '@env';
+import axios from 'axios';
+import { useNavigation } from 'expo-router';
 
-import LogInform from '../components/provider/LogInForm';
 
-export default function App() {
-  const [modalVisible, setModalVisible] = useState(true);
+export default function LoginScreen() {
+  const navigation = useNavigation();
+  const [editProfile, setEditProfile] = useState(false);
+  const { user, signOut } = useContext(AuthContext);
+  const [userData, setUserData] = useState({})
+
+  const value_change = (value: string) => {
+    setEditProfile(!editProfile);
+  };
 
   useEffect(() => {
-    // Cacher la fenêtre modale après 5 secondes
-    const timeoutId = setTimeout(() => {
-      setModalVisible(false);
-    }, 5000);
-
-    // Nettoyer le timeout lors du démontage du composant
-    return () => clearTimeout(timeoutId);
+    if(user?.connected) {
+      console.log('user connected'+ user?.type)
+    navigation.navigate('index')
+    }
   }, []);
+  
+  const formData = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/associations/user/${user?.id}`);
+      setUserData(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
-  return (
-    <>
-    <View style={{ flex: 1 }}>
-      <Modal visible={modalVisible}>
-        <View style={{ flex: 1 }}>
-          <Text>Modal Content</Text>
-          <Button title="Close" onPress={() => setModalVisible(false)} />
-        </View>
-      </Modal>
-      <Text>App Content</Text>
-    </View>
-    </>
-  );
+  const toggleOverlay = () => {
+    formData();
+    setEditProfile(!editProfile);
+  }
+
+  if(user?.connected && user?.isEmailVerified === true && !user?.firstconnexion && user?.type === "Particuliers") { 
+    return (
+      <View style={{height: '100%', width: '100%', marginTop: 15}}>
+        <Image source={require('../assets/images/don/cat-futuristic.jpg')} 
+          style={styles.tinyLogo}/>
+        <Text style={styles.p}>Bienvenue, {user?.email}!</Text>
+        <ProfilScreen />
+       <Pressable style={styles.pressable} onPress={signOut}><Text style={{textAlign: 'center', fontSize: 16 ,textDecorationLine: 'underline'}}>Se Déconnecter</Text></Pressable>
+      </View>
+    );
+  } else if(user?.connected && user?.isEmailVerified === true && user?.type === "Association" && !user?.firstconnexion) {
+    return (
+      <View style={{height: '100%', width: '100%', marginTop: 15}}>
+        <Image source={{
+            uri: '../../assets/images/adaptive-icon.png',
+          }} 
+          style={styles.tinyLogo}/>
+          <Pressable onPress={toggleOverlay}>
+            <Text style={{textAlign: 'center', fontSize: 16 ,textDecorationLine: 'underline'}}>Modifier l'image de présentation</Text>
+          </Pressable>
+          <ProfilePicture visible={editProfile} data={userData} changeState={value_change}/>
+        <Text style={styles.p}>Bienvenue, {user?.email}!</Text>
+        <ProfilAssocScreen />
+       <Pressable style={styles.pressable} onPress={signOut}><Text style={{textAlign: 'center', fontSize: 16 ,textDecorationLine: 'underline'}}>Se Déconnecter</Text></Pressable>
+      </View>
+    );
+  } else {
+    return (
+      <View >
+        <Text style={styles.p}>Veuillez vous connecter ou contacter un admin</Text>
+        <Pressable onPress={signOut}><Text>Se Déconnecter</Text></Pressable>
+      </View>
+    );
+  }
+
+  
+
 }
 
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+  pressable: {
+    width: '100%',
+    textAlign: 'center',
+    marginTop: 20,
   },
-  Modal : {
-    width: '100%', 
-    height: '100%',
-  },
-  title: {
+  p: {
     fontSize: 20,
-    fontWeight: 'bold',
+    color: "#000",
+    textAlign: "center",
+    marginTop: 20,
   },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
+  tinyLogo: {
+    width: 100,
+    height: 100,
+    backgroundColor: "grey",
+    borderRadius: 50,
+    alignSelf: "center",
   },
-});
 
-
+})

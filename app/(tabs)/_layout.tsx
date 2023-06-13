@@ -19,7 +19,6 @@ export default function TabLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <AuthProvider>
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
@@ -41,7 +40,7 @@ export default function TabLayout() {
         tabBarIcon: ({ color }) => <FontAwesome name="map" size={24} color="grey" />,
         headerTitle: 'XEPI',
         headerRight: () => (
-          <Link href="/modal" asChild>
+          <Link href="/login" asChild>
             <Pressable style={{marginRight: 20}}>
               {({ pressed }) => (
                 <Image source={require('../../assets/images/logo/icon_profil.png')}/>
@@ -59,7 +58,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <FontAwesome name="map" size={24} color="grey" />,
           headerTitle: 'XEPI',
           headerRight: () => (
-            <Link href="/modal" asChild>
+            <Link href="/login" asChild>
               <Pressable style={{marginRight: 20}}>
                 {({ pressed }) => (
                   <Image source={require('../../assets/images/logo/icon_profil.png')}/>
@@ -76,25 +75,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <FontAwesome name="search" size={24} color="grey" />,
         }}
       />
-      <Tabs.Screen
-        name="association"
-        options={{
-          headerTitle: '',
-          headerLeft: () => (
-            <Link href="index" asChild>
-              <Pressable style={{marginLeft: 20}}>
-                {({ pressed }) => (
-                  <AntDesign name="back" size={40} color="white" />
-                )}
-              </Pressable>
-            </Link>
-          ),
-          tabBarIcon: ({ color }) => <FontAwesome name="list" size={24} color="grey" />,
-          headerTitleStyle: { color: 'white' },
-          headerTransparent: true
-          
-        }}
-      />
+      
        <Tabs.Screen
         name="post"
         options={{
@@ -103,6 +84,5 @@ export default function TabLayout() {
         }}
       />
     </Tabs>
-    </AuthProvider>
   );
 }

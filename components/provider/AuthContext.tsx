@@ -14,6 +14,7 @@ type User = {
   isEmailVerified: boolean;
   firstconnexion: boolean|null;
   type: string|null;
+  profile_picture: string|null;
 };
 
 type AuthContextType = {
@@ -32,6 +33,7 @@ export const AuthContext = createContext<AuthContextType>({
   error: null,
   setUser: () => {},
   signIn: () => {},
+  GuestSignIn: () => {},
   signOut: () => {},
   setError: () => {},
 });
@@ -63,6 +65,7 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     isEmailVerified: false,
     firstconnexion: null,
     type: null,
+    profile_picture: null,
   });
 
   const [error, setError] = useState({
@@ -112,6 +115,7 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
           isEmailVerified: false,
           firstconnexion: false,
           type: null,
+          profile_picture: null,
         });
       } else {
         console.log('Connexion : '+response.data.first_connexion);
@@ -132,6 +136,7 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
           isEmailVerified: response.data.isEmailVerified,
           firstconnexion: response.data.first_connexion,
           type: response.data.type,
+          profile_picture: response.data.profile_picture,
         });
       }
     } catch (error: any) {
@@ -150,6 +155,7 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         isEmailVerified: false,
         firstconnexion: null,
         type: null,
+        profile_picture: null,
       });
     } finally {
       setIsLoading(false); // Désactiver l'indicateur de chargement
@@ -220,7 +226,7 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
   const signOut = async () => {
     await SecureStore.deleteItemAsync('login_jwt');
-    setUser({ id: 0, email: '', password: '', connected: false, isEmailVerified: false, firstconnexion: null, type: null});
+    setUser({ id: 0, email: '', password: '', connected: false, isEmailVerified: false, firstconnexion: null, type: null, profile_picture: null});
     setAuthState({
       accessToken: '',
       refreshToken: '',

@@ -40,7 +40,7 @@ export default function DonMateriel() {
 
   
   useEffect(() => {
-    setSpecify(['Aide alimentaire', 'Aide vestimentaire', 'Aide financière', 'Aide matérielle']);
+    setSpecify(['Aide alimentaire']);
     }, [])
 
     //Select color by index and item index

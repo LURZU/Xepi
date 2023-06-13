@@ -1,7 +1,7 @@
 
 
 
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useCallback, useContext } from 'react';
 import { View, StyleSheet } from 'react-native';
 
 import LoginInform from '../../components/provider/LogInForm';
@@ -35,18 +35,24 @@ export default function App() {
   }
 
   // Enlever commentaire pour utiliser l'app sans le login
-  return(
-    <View>
-      {/* <MapScreen/> */}
-    </View>
-  )
+  // return(
+  //   <View>
+  //     {/* <MapScreen/> */}
+  //   </View>
+  // )
     // If user is connected and email is verified11
     // console.log(user?.firstconnexion+' '+user?.type+' '+user?.isEmailVerified+' '+user?.connected+' '+user?.id)
     if(user?.connected && user?.isEmailVerified === true && user?.type === 'Particuliers' && !user?.firstconnexion) {
       return(
         <View>
-        <MapScreen/>
-      </View>
+          <MapScreen/>
+        </View>
+      )
+    }else if(user?.connected && user?.isEmailVerified === true && user?.type === 'Association' && !user?.firstconnexion) {
+      return(
+        <View>
+          <MapScreen/>
+        </View>
       )
     } else if (user?.firstconnexion && user?.type === 'Association' && user?.isEmailVerified && user?.connected) {
       console.log('Première connexion association')
@@ -62,7 +68,7 @@ export default function App() {
           <FirstConnectParticuliers />
         </View>
       )
-    }
+    } 
 
 
 return(
