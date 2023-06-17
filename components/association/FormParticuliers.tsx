@@ -21,10 +21,6 @@ export default function FormParticuliers(props: any) {
   const [conditions, setConditions] = useState(props.data.bool_newsletter);
   const [role, setRole] = useState('');
   const [formErrors, setFormErrors] = useState<FormErrors>({});
-  if(props.data.email === undefined){ 
-    return(<Modal><Text>Problème connexion serveur</Text></Modal>)
-  }
-
 
   // DropDownInput set UseState value (role)
   const handleSelectedValue = (value: string) => {
