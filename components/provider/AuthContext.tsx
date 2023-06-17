@@ -4,6 +4,7 @@ import * as SecureStore from 'expo-secure-store';
 import jwt_decode from 'jwt-decode';
 import { Alert, ActivityIndicator  } from 'react-native';
 import { API_URL } from '@env';
+import { useNavigation } from 'expo-router';
 
 
 type User = {
@@ -24,6 +25,8 @@ type AuthContextType = {
   signIn: (email: string, password: string, connected: boolean) => void;
   signOut: () => void;
   setError: (error: {error_msg: string, code_error: number}) => void;
+  GuestSignIn: (email: string, password: string, type: string) => void | null;
+  authState: {accessToken: string, refreshToken: string, authenticated: boolean} | null;
 };
 
 
@@ -31,11 +34,13 @@ type AuthContextType = {
 export const AuthContext = createContext<AuthContextType>({
   user: null,
   error: null,
+  authState: null,
   setUser: () => {},
   signIn: () => {},
   GuestSignIn: () => {},
   signOut: () => {},
   setError: () => {},
+ 
 });
 
 const getUserFromAsync = async (request: string) => { 
@@ -225,6 +230,7 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   };
 
   const signOut = async () => {
+
     await SecureStore.deleteItemAsync('login_jwt');
     setUser({ id: 0, email: '', password: '', connected: false, isEmailVerified: false, firstconnexion: null, type: null, profile_picture: null});
     setAuthState({
@@ -232,10 +238,11 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       refreshToken: '',
       authenticated: false,
     });
+
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, signIn, signOut, error, GuestSignIn, setError, isLoading }}>
+    <AuthContext.Provider value={{ user, setUser, signIn, signOut, error, GuestSignIn, setError, isLoading, authState }}>
       {children}
     </AuthContext.Provider>
   );

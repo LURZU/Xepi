@@ -4,7 +4,7 @@ import { Text, Image, Button} from 'react-native';
 import { View } from '../components/Themed';
 import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../components/provider/AuthContext';
-import ProfilScreen from '../components/Screen/ProfilAssocScreen';
+import ProfilScreen from '../components/Screen/ProfilScreen';
 import ProfilAssocScreen from '../components/Screen/ProfilAssocScreen';
 import ProfilePicture from '../components/Screen/ProfilePicture';
 import { API_URL } from '@env';
@@ -22,17 +22,21 @@ export default function LoginScreen() {
     setEditProfile(!editProfile);
   };
 
-  useEffect(() => {
-    if(user?.connected) {
-      console.log('user connected'+ user?.type)
-    navigation.navigate('index')
-    }
-  }, []);
+  const signOutPress = () => {
+    navigation.navigate('index');
+    signOut();
+  }
   
   const formData = async () => {
     try {
-      const response = await axios.get(`${API_URL}/associations/user/${user?.id}`);
-      setUserData(response.data);
+      if(user?.type === "Association") {
+        const response = await axios.get(`${API_URL}/associations/user/${user?.id}`);
+        setUserData(response.data);
+      } else if(user?.type === "Particuliers") {
+        const response = await axios.get(`${API_URL}/users/${user?.id}`);
+        setUserData(response.data);
+      }
+    
     } catch (error) {
       console.error(error);
     }
@@ -44,13 +48,14 @@ export default function LoginScreen() {
   }
 
   if(user?.connected && user?.isEmailVerified === true && !user?.firstconnexion && user?.type === "Particuliers") { 
+    console.log('user connected'+ user?.type)
     return (
       <View style={{height: '100%', width: '100%', marginTop: 15}}>
         <Image source={require('../assets/images/don/cat-futuristic.jpg')} 
           style={styles.tinyLogo}/>
         <Text style={styles.p}>Bienvenue, {user?.email}!</Text>
         <ProfilScreen />
-       <Pressable style={styles.pressable} onPress={signOut}><Text style={{textAlign: 'center', fontSize: 16 ,textDecorationLine: 'underline'}}>Se Déconnecter</Text></Pressable>
+       <Pressable style={styles.pressable} onPress={signOutPress}><Text style={{textAlign: 'center', fontSize: 16 ,textDecorationLine: 'underline'}}>Se Déconnecter</Text></Pressable>
       </View>
     );
   } else if(user?.connected && user?.isEmailVerified === true && user?.type === "Association" && !user?.firstconnexion) {
@@ -66,14 +71,14 @@ export default function LoginScreen() {
           <ProfilePicture visible={editProfile} data={userData} changeState={value_change}/>
         <Text style={styles.p}>Bienvenue, {user?.email}!</Text>
         <ProfilAssocScreen />
-       <Pressable style={styles.pressable} onPress={signOut}><Text style={{textAlign: 'center', fontSize: 16 ,textDecorationLine: 'underline'}}>Se Déconnecter</Text></Pressable>
+       <Pressable style={styles.pressable} onPress={signOutPress}><Text style={{textAlign: 'center', fontSize: 16 ,textDecorationLine: 'underline'}}>Se Déconnecter</Text></Pressable>
       </View>
     );
   } else {
     return (
       <View >
         <Text style={styles.p}>Veuillez vous connecter ou contacter un admin</Text>
-        <Pressable onPress={signOut}><Text>Se Déconnecter</Text></Pressable>
+        <Pressable onPress={signOutPress}><Text>Se Déconnecter</Text></Pressable>
       </View>
     );
   }

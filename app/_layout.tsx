@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 import AuthProvider from '../components/provider/AuthContext';
 import LoginScreen from './login';
+import ModalScreen from './modal';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -49,6 +50,7 @@ function RootLayoutNav() {
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="login" options={{ presentation: 'modal', headerTitle: 'Profil', title: 'Profil' }} />
+          <Stack.Screen name="association" options={{ presentation: 'modal', title: 'Association'}} />
         </Stack>
         </AuthProvider>
       </ThemeProvider>

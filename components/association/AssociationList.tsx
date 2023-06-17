@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Button, StyleSheet, Text, View, StatusBar, Platform, ScrollView, Modal, Pressable } from 'react-native';
+import { Button, StyleSheet, Text, View, StatusBar, Platform, ScrollView, Modal, Pressable, TouchableOpacity, Linking } from 'react-native';
 import axios from 'axios';
 import { API_URL } from '@env';
 import * as Location from 'expo-location';
+import { Link, useNavigation } from "expo-router";
 
 //détecter le changement de screen avec le useEffect
 
@@ -28,7 +29,7 @@ interface Category {
 const AssociationList = () => {
 
     const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
-
+    const navigation = useNavigation();
     const [showModal, setShowModal] = useState(true);
     const [associations, setAssociations] = useState<Association[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
@@ -47,6 +48,7 @@ const AssociationList = () => {
     }, []);
     
     const handlePress = (categoryName) => {
+
         hideModal();
         loadAssociations(categoryName);
     };
@@ -183,13 +185,16 @@ const AssociationList = () => {
                 <View style={{ marginTop: statusBarHeight, margin: 20 }}>
                     <Text style={styles.title}>Liste des associations</Text>
                     {associations.map((association, index) => (
-                      
-                        <View key={association.id} style={[styles.association, styles['nb' + index]]}>
-                            <Text style={styles.associationTitle}>{association.name} | {association.category} </Text>
-                            <Text style={styles.associationDescription}>{association.description}</Text>
-                            <Text style={styles.associationAdresse}>{association.adresse}</Text>
-                            <Text style={styles.associationTown}>{association.postcode + ' ' + association.town}</Text>
-                        </View>
+                 
+                            <View key={association.id} style={[styles.association, styles['nb' + index]]}>
+                                <TouchableOpacity onPress={() => navigation.navigate('association', { id: association.id } )}>
+                                <Text style={styles.associationTitle}>{association.name} | {association.category} </Text>
+                                <Text style={styles.associationDescription}>{association.description}</Text>
+                                <Text style={styles.associationAdresse}>{association.adresse}</Text>
+                                <Text style={styles.associationTown}>{association.postcode + ' ' + association.town}</Text>
+                                </TouchableOpacity>
+                            </View>
+                   
   
                     ))}
                 </View>
