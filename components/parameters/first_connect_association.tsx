@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Modal, Pressable } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Modal, Pressable, ScrollView } from 'react-native';
 import DropDownInput from '../input/DropDownInput';
 import { FontAwesome, MaterialIcons, Ionicons } from '@expo/vector-icons';
 import Checkbox from 'expo-checkbox';
@@ -21,10 +21,12 @@ export default function FirstConnectParticuliers(props: any) {
   const [postalCode, setPostalCode] = useState('');
   const [city, setCity] = useState('');
   const [coord, setCoord] = useState('');
+  const [description, setDescription] = useState('');
   const [conditions, setConditions] = useState(false);
   const [role, setRole] = useState('');
   const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [type, setType] = useState<string[]>(['Requête API en cours...']);
+  const [blockText, setBlockText] = useState(false);
 
   // DropDownInput set UseState value (role)
   const handleSelectedValue = (value: string) => {
@@ -59,7 +61,7 @@ export default function FirstConnectParticuliers(props: any) {
       if(response.data.features.length === 0) {
         return [0, 0];
       }
-      setCoord(response.data.features[0].geometry.coordinates);
+      setCoord(response.data.features[0].geometry.coordinates.join(','));
     } catch (error) {
       throw new Error('Network response was not ok');
     }
@@ -69,21 +71,29 @@ export default function FirstConnectParticuliers(props: any) {
     getCoordinate(address, city, postalCode);
   }, [address, city, postalCode]);
 
-
+  useEffect(() => {
+    if(description.length >= 255){
+      setBlockText(true)
+    }else{
+      setBlockText(false)
+    }
+  }, [description])
 
   const handleForm = async () => {
     // Check if form is valid before sending to backend
     if (validateForm()) {
       try {
-        const userData = {
+        const assocData = {
           rna: rna,
           name: name,
           town: city,
           postcode: postalCode,
-          coordinate: address,
+          adresse: address,
+          description: description,
           phone: phone,
-          type: role,
+          coordinate: coord,
           user_id: user?.id,
+          type: role,
         };
 
         const userConfirm = {
@@ -97,7 +107,7 @@ export default function FirstConnectParticuliers(props: any) {
           role,
         };
         // send PATCH request to backend api nested in axios
-        const response = await axios.post(API_URL+'/associations/add', userData);
+        const response = await axios.post(API_URL+'/associations/add', assocData);
         const newuser = await axios.patch(API_URL+'/users/'+user?.id, userConfirm);
         setIsModalVisible(false);
       } catch (error) {
@@ -138,6 +148,10 @@ export default function FirstConnectParticuliers(props: any) {
       errors.rna = 'Veuillez entrer un RNA valide';
     }
 
+    if (!description) {
+      errors.description = 'Votre description doit contenir moins de 255 caractères';
+    }
+
     setFormErrors(errors);
 
     return Object.keys(errors).length === 0;
@@ -151,6 +165,7 @@ export default function FirstConnectParticuliers(props: any) {
       animationType="slide"
       visible={isModalVisible}
       >
+        <ScrollView>
         <View style={{ paddingHorizontal: 30 }}>
           <Text style={{ fontSize: 25, textAlign: 'center', marginTop: 30, fontWeight: 'bold' }}>
             Bienvenue sur <Text style={{ color: '#F9943B' }}>XEPI</Text>,
@@ -215,6 +230,25 @@ export default function FirstConnectParticuliers(props: any) {
             />
           </View>
           {formErrors.adress && <Text style={styles.errorText}>{formErrors.adress}</Text>}
+
+          
+          <View style={[styles.inputLog, {height: 100} ]}>
+          <MaterialIcons name="description" size={24} color="black" style={styles.icon}  />
+        
+            <TextInput
+              value={description}
+              onChangeText={setDescription}
+              multiline = {true}
+              editable={!blockText}
+              placeholderTextColor="#000"
+              placeholder="Description"
+              style={[styles.inputText , {height: 100} ]}
+              testID="auth-login"
+              scrollEnabled ={true}
+            />
+            <Text style={{color: '#8b8b8b', fontSize: 12}}>{description.length}/256</Text>
+          </View>
+          {formErrors.description && <Text style={styles.errorText}>{formErrors.description}</Text>}
           
 
           <View style={styles.inputLog}>
@@ -245,8 +279,6 @@ export default function FirstConnectParticuliers(props: any) {
           </View>
           {formErrors.rna && <Text style={styles.errorText}>{formErrors.rna}</Text>}
 
-          
-
           <Text style={styles.left}>Quel type d'association êtes vous ?</Text>
           <DropDownInput items={type} onValueChange={handleSelectedValue} />
 
@@ -256,6 +288,7 @@ export default function FirstConnectParticuliers(props: any) {
             <Text style={{ color: '#FFF', fontSize: 20, textAlign: 'center', fontWeight: 'bold' }}>Envoyer</Text>
           </Pressable>
         </View>
+        </ScrollView>
       </Modal>
     </>
   );

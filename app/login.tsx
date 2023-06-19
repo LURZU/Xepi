@@ -47,7 +47,7 @@ export default function LoginScreen() {
     setEditProfile(!editProfile);
   }
 
-  console.log(user?.firstconnexion+' '+user?.type+' '+user?.isEmailVerified+' '+user?.connected+' '+user?.id)
+  console.log(user?.firstconnexion+' '+user?.type+' '+user?.isEmailVerified+' '+user?.connected+' '+user?.id+' '+user?.firstconnexion)
 
   if(user?.connected && user?.isEmailVerified === true && !user?.firstconnexion && user?.type === "Particuliers") { 
     console.log('user connected'+ user?.type)

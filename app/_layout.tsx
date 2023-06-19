@@ -45,7 +45,7 @@ function RootLayoutNav() {
   return (
     <>
     
-      <ThemeProvider value={colorScheme === 'light' ? DarkTheme : DefaultTheme}>
+      <ThemeProvider value={DefaultTheme}>
       <AuthProvider>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -53,8 +53,8 @@ function RootLayoutNav() {
           <Stack.Screen 
             name="association" 
             options={{ 
-                presentation: 'fullScreenModal', 
-                title: 'Association', 
+                presentation: 'modal',  
+                title: 'Association',
               }} 
           />
 

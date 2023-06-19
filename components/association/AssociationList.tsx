@@ -29,6 +29,7 @@ interface Category {
 const AssociationList = () => {
 
     const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
+    //add navigate option
     const navigation = useNavigation();
     const [showModal, setShowModal] = useState(true);
     const [associations, setAssociations] = useState<Association[]>([]);
@@ -127,7 +128,7 @@ const AssociationList = () => {
                 town: association.town,
                 postcode: association.postcode,
                 description: association.description,
-                category: association.category,
+                type: association.category,
                 latitude: parseFloat(oLocation[1]),
                 longitude: parseFloat(oLocation[0]),
                 km: calculateDistance(oUserPosition.latitude, oUserPosition.longitude, parseFloat(oLocation[1]), parseFloat(oLocation[0])),

@@ -171,7 +171,7 @@ export default function FormAssociation(props: any) {
               multiline = {true}
               editable={!blockText}
               placeholderTextColor="#000"
-              placeholder="Numéro RNA"
+              placeholder="Description"
               style={[styles.inputText , {height: 100} ]}
               testID="auth-login"
               scrollEnabled ={true}
