@@ -17,7 +17,6 @@ interface MarkerData {
 }
 
 const CustomMap = () => {
-    const [isModalVisible, setModalVisible] = useState(false);
     const statusBarHeight = Platform.OS === "android" ? StatusBar.currentHeight : 0;
 
     const [markers, setMarkers] = useState<MarkerData[]>([]);
@@ -34,9 +33,6 @@ const CustomMap = () => {
         }
     };
 
-    const toggleModal = () => {
-        setModalVisible(!isModalVisible);
-    };
 
     useEffect(() => {
         const fetchMarkers = async () => {
@@ -86,7 +82,6 @@ const CustomMap = () => {
                       }} coordinate={marker.coordinate} title={marker.title} description={marker.description}/>
                 ))}
             </MapView>
-            <AssociationScreen visible={isModalVisible} closeModal={toggleModal}/>
         </View>
     );
 };

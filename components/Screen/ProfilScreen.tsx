@@ -36,7 +36,6 @@ export default function ProfilScreen() {
     const toggleOverlay = () => {
       setVisible(!visible);
       getDataUser()
-      console.log(user)
     };
     
 

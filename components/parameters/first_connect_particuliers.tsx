@@ -45,7 +45,6 @@ export default function FirstConnectParticuliers(props: any) {
 
         // send PATCH request to backend api nested in axios
         const response = await axios.patch(API_URL+'/users/'+user?.id, userData);
-        console.log(response.data);
         setIsModalVisible(false);
       } catch (error) {
         console.error(error);

@@ -24,6 +24,7 @@ type AssociationRouteParams = {
 type AssociationRouteProp = RouteProp<Record<string, AssociationRouteParams>, string>;
 
 export default function AssociationScreen() {
+  console.log('AssociationScreen');
   const { user } = useContext(AuthContext);
   const [image, setImage] = useState(null);
   const [specify, setSpecify ] = useState<string[]>([]);
@@ -38,10 +39,9 @@ export default function AssociationScreen() {
   ];
 
   useEffect(() => {
-    console.log(' Lid : ');
-  const { id } = route.params;
-  
-  }, [])
+    const { id } = route.params;
+    console.log('id : ', id);
+  }, [route.params.id]);
  
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
@@ -58,7 +58,7 @@ export default function AssociationScreen() {
 
   const getAssociationData = async () => {
     try {
-      const response = await axios.get(`${API_URL}/associations/user/${user?.id}`);
+      const response = await axios.get(`${API_URL}/associations/`);
       setUserData(response.data);
     } catch (error) {
       console.error(error);

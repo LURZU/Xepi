@@ -20,10 +20,11 @@ export default function FirstConnectParticuliers(props: any) {
   const [name, setName] = useState('');
   const [postalCode, setPostalCode] = useState('');
   const [city, setCity] = useState('');
+  const [coord, setCoord] = useState('');
   const [conditions, setConditions] = useState(false);
   const [role, setRole] = useState('');
   const [formErrors, setFormErrors] = useState<FormErrors>({});
-  const [type, setType] = useState('');
+  const [type, setType] = useState<string[]>(['Requête API en cours...']);
 
   // DropDownInput set UseState value (role)
   const handleSelectedValue = (value: string) => {
@@ -38,19 +39,36 @@ export default function FirstConnectParticuliers(props: any) {
       const categories = dataType.data;
       // Extract names and stocks from categories and create a new array
       const categoryData = categories.map((category: { name: string; }) => {
-        return category.name;
-    });
-    setType(categoryData);
+      return category.name; 
+      });
+      setType(categoryData);
     } catch (error) {
       console.error(error);
-      setType('error');
+      setType(['Requête API en cours...']);
     }
   };
 
   useEffect(() => {
     getDataCategory();
-    console.log(type);
   }, []);
+
+  const getCoordinate = async (adresse: string, town: string, postcode: string): Promise<void | number[]> => {
+    const adressPlus = adresse.replaceAll(' ', '+') + '+' + postcode + '+' + town;
+    try {
+      const response = await axios.get('https://api-adresse.data.gouv.fr/search/?q=' + adressPlus);
+      if(response.data.features.length === 0) {
+        return [0, 0];
+      }
+      setCoord(response.data.features[0].geometry.coordinates);
+    } catch (error) {
+      throw new Error('Network response was not ok');
+    }
+  };
+
+  useEffect(() => {
+    getCoordinate(address, city, postalCode);
+  }, [address, city, postalCode]);
+
 
 
   const handleForm = async () => {
@@ -116,7 +134,7 @@ export default function FirstConnectParticuliers(props: any) {
       errors.adress = 'Veuillez entrer une adresse valide';
     }
 
-    if (!rna || rna.length < 9 || rna[0] !== 'W') {
+    if (!rna || rna.length < 10 || rna[0] === 'W' || rna[1] === 'w') {
       errors.rna = 'Veuillez entrer un RNA valide';
     }
 
@@ -205,6 +223,7 @@ export default function FirstConnectParticuliers(props: any) {
               value={phone}
               onChangeText={setPhone}
               placeholderTextColor="#000"
+              maxLength={10}
               placeholder="Téléphone"
               style={styles.inputText}
               testID="auth-login"
@@ -217,6 +236,7 @@ export default function FirstConnectParticuliers(props: any) {
             <TextInput
               value={rna}
               onChangeText={setRNA}
+              maxLength={10}
               placeholderTextColor="#000"
               placeholder="Numéro RNA"
               style={styles.inputText}

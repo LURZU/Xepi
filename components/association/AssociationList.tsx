@@ -57,7 +57,7 @@ const AssociationList = () => {
         setShowModal(false);
     }
 
-    const getAssociationsByCategory = async (categoryName): Promise<Association[]> => {
+    const getAssociationsByCategory = async (categoryName: string): Promise<Association[]> => {
         try {
             const response = await axios.post(API_URL+'/associations/type/', {category: categoryName});
             if (response.status === 200 || response.status === 201) {

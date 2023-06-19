@@ -11,6 +11,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import FirstConnectAssociation from '../../components/parameters/first_connect_association';
 import MapScreen from '../../components/Screen/MapScreen';
 import FirstConnectParticuliers from '../../components/parameters/first_connect_particuliers';
+import AssociationFormScreen from '../../components/Screen/AssociationFormScreen';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -41,34 +42,38 @@ export default function App() {
   //   </View>
   // )
     // If user is connected and email is verified11
-    // console.log(user?.firstconnexion+' '+user?.type+' '+user?.isEmailVerified+' '+user?.connected+' '+user?.id)
+  
     if(user?.connected && user?.isEmailVerified === true && user?.type === 'Particuliers' && !user?.firstconnexion) {
       return(
         <View>
           <MapScreen/>
         </View>
       )
-    }else if(user?.connected && user?.isEmailVerified === true && user?.type === 'Association' && !user?.firstconnexion) {
+    } else if(user?.connected && user?.isEmailVerified === true && user?.type === 'Association' && !user?.firstconnexion) {
       return(
         <View>
           <MapScreen/>
         </View>
       )
     } else if (user?.firstconnexion && user?.type === 'Association' && user?.isEmailVerified && user?.connected) {
-      console.log('Première connexion association')
       return(
         <View>
           <FirstConnectAssociation />
         </View>
       )
     } else if (user?.firstconnexion && user?.type === 'Particuliers' && user?.isEmailVerified && user?.connected) {
-      console.log('Première connexion particuliers')
       return(
         <View>
           <FirstConnectParticuliers />
         </View>
       )
-    } 
+    } else if(user?.connected && user?.isEmailVerified === true && user?.type === 'admin' && !user?.firstconnexion) {
+      return(
+        <View>
+          <AssociationFormScreen/>
+        </View>
+      )
+    }
 
 
 return(

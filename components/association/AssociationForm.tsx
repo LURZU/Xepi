@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, StatusBar, Platform, ScrollView } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
 import { API_URL } from '@env';
+import DropDownInput from '../input/DropDownInput';
 
 const AssociationForm = () => {
   const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
@@ -14,6 +15,8 @@ const AssociationForm = () => {
   const [postcode, setPostcode] = useState<string>('');
   const [phone, setPhone] = useState<string>('');
   const [type, setType] = useState<string>('');
+  const [cat, setCat] = useState<string[]>(['test']);
+
 
   const checkRna = (rna: string): boolean => {
     const rnaRegex = /^W\d{9}$/;
@@ -44,6 +47,34 @@ const AssociationForm = () => {
       throw new Error('Network response was not ok');
     }
   };
+
+  const handleSelectedValue = (value: string) => {
+    setType(value);
+  };
+
+  // Get data from backend api
+  const getDataCategory = async () => {
+    try {
+      // send get request to backend api to category
+      const dataType = await axios.get(API_URL+'/category');
+      const categories = dataType.data;
+        
+      // Extract names and stocks from categories and create a new array
+      const categoryData = categories.map((category: { name: string; }) => {
+      return category.name; 
+      });
+      //If the request is successful, set the state of the category
+      setCat(categoryData);
+    } catch (error) {
+      console.error(error);
+      setCat(['error']);
+    }
+  };
+
+  useEffect(() => {
+    getDataCategory();
+  }, []);
+
 
   const handleSubmit = async () => {
     const coordinate = await getCoordinate(adresse, town, postcode);
@@ -98,6 +129,7 @@ const AssociationForm = () => {
             value={rna}
             maxLength={10}
             placeholder="W123456789"
+            testID='rna'
           />
           <Text style={styles.label}>Nom :</Text>
           <TextInput
@@ -105,6 +137,7 @@ const AssociationForm = () => {
             onChangeText={setName}
             value={name}
             placeholder="Nom"
+            testID='name'
           />
           <Text style={styles.label}>Téléphone :</Text>
           <TextInput
@@ -114,6 +147,7 @@ const AssociationForm = () => {
             maxLength={10}
             keyboardType="numeric"
             placeholder="0623456789"
+            testID='phone'
           />
           <Text style={styles.label}>Adresse :</Text>
           <TextInput
@@ -121,6 +155,7 @@ const AssociationForm = () => {
             onChangeText={setAdresse}
             value={adresse}
             placeholder="Adresse"
+            testID='adresse'
           />
           <Text style={styles.label}>Ville :</Text>
           <TextInput
@@ -128,6 +163,7 @@ const AssociationForm = () => {
             onChangeText={setTown}
             value={town}
             placeholder="Ville"
+            testID='ville'
           />
           <Text style={styles.label}>Code Postal :</Text>
           <TextInput
@@ -135,19 +171,11 @@ const AssociationForm = () => {
             onChangeText={setPostcode}
             value={postcode}
             placeholder="Code Postal"
+            testID='postalcode'
           />
           <Text style={styles.label}>Type d'association :</Text>
-          <Picker
-            selectedValue={type}
-            onValueChange={(itemValue, itemIndex) => setType(itemValue)}
-            style={styles.inputText}
-          >
-            <Picker.Item label="Sélectionner un type" value="null" />
-            <Picker.Item label="Humanitaire" value="humanitaire" />
-            <Picker.Item label="Animalier" value="animalier" />
-            <Picker.Item label="Sportif" value="sportif" />
-            <Picker.Item label="Social" value="social" />
-          </Picker>
+         
+          <DropDownInput items={cat} onValueChange={handleSelectedValue} />
 
           <TouchableOpacity style={styles.button} onPress={handleSubmit}>
             <Text style={styles.buttonText}>Envoyer</Text>

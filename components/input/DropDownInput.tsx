@@ -1,11 +1,15 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { List } from 'react-native-paper';
-import {  StyleSheet, View  } from 'react-native';
+import {  StyleSheet, View, Text  } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 
 export default function DropDownInput(props: any) {
     const [selectedValue, setSelectedValue] = useState('');
-
+    //In case if the api don't return categories
+   
+    if(props.items === undefined) {
+        props.items = ['Erreur api']
+    }
 
     const handleValueChange = (value: string) => {
         setSelectedValue(value)
@@ -13,6 +17,11 @@ export default function DropDownInput(props: any) {
           props.onValueChange(value);
         }
       };
+
+      useEffect(() => {
+        setSelectedValue(props.value);
+      }
+      , [props.value]);
 
     return (
         <View style={styles.container}>
