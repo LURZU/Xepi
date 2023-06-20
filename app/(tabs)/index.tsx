@@ -12,6 +12,7 @@ import FirstConnectAssociation from '../../components/parameters/first_connect_a
 import MapScreen from '../../components/Screen/MapScreen';
 import FirstConnectParticuliers from '../../components/parameters/first_connect_particuliers';
 import AssociationFormScreen from '../../components/Screen/AssociationFormScreen';
+import ProfilAssocScreen from '../../components/Screen/ProfilAssocScreen';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -52,7 +53,7 @@ export default function App() {
     } else if(user?.connected && user?.isEmailVerified === true && user?.type === 'Association' && !user?.firstconnexion) {
       return(
         <View>
-          <MapScreen/>
+          <ProfilAssocScreen/>
         </View>
       )
     } else if (user?.firstconnexion && user?.type === 'Association' && user?.isEmailVerified && user?.connected) {

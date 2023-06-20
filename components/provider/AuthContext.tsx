@@ -1,21 +1,24 @@
-import React, { createContext, FC, ReactNode, useEffect, useState } from 'react';
+import React, { createContext, ReactNode, useState } from 'react';
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import jwt_decode from 'jwt-decode';
-import { Alert, ActivityIndicator  } from 'react-native';
+import { Alert  } from 'react-native';
 import { API_URL } from '@env';
-import { useNavigation } from 'expo-router';
 
 
 type User = {
   id: number|null;
   email: string;
-  password: string;
   connected: boolean;
   isEmailVerified: boolean;
   firstconnexion: boolean|null;
   type: string|null;
   profile_picture: string|null;
+};
+
+type DecodedToken = {
+  exp: number;
+  // définir ici d'autres champs que vous attendez dans le token
 };
 
 type AuthContextType = {
@@ -43,29 +46,16 @@ export const AuthContext = createContext<AuthContextType>({
  
 });
 
-const getUserFromAsync = async (request: string) => { 
-  await axios.get(request)
-  .then(async response => {
-    // handle the response data
-    await SecureStore.setItemAsync('login_jwt',response.data.access_token);
-  })
-  .catch(error => {
-    // handle the error
-    console.error(error);
-});
-}
-
 
 const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // Utilisation des variables d'environnement
-
+  //define my API url
   const APIurl = API_URL;
+  //Set the state of the loading indicator
   const [isLoading, setIsLoading] = useState(false);
-
+  //Set the state of the user
   const [user, setUser] = useState<User | null>({
     id: null,
     email: '',
-    password: '',
     connected: false,
     isEmailVerified: false,
     firstconnexion: null,
@@ -90,16 +80,17 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   
     const request = APIurl + `/auth/connect/${email}/${password}`;
     console.log(request);
-    // Récupération du token
+    // Token
     try {
       const response = await axios.get(request);
       const accessToken = response.data.access_token;
       await SecureStore.setItemAsync('login_jwt', accessToken);
-      const { exp } = jwt_decode(accessToken);
+      const { exp } = jwt_decode<DecodedToken>(accessToken);
       
-      //Vérification de la validité du token en comparant la date d'expiration avec la date actuelle
+      //Verify if the token is expired, else if it is not expired, we set the user state
       if (exp < Date.now() / 1000) {
         await SecureStore.deleteItemAsync('login_jwt');
+        //set the user accessToken to test it when we will use the app
         setAuthState({
           accessToken: '',
           refreshToken: '',
@@ -115,7 +106,6 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         setUser({
           id: null,
           email,
-          password,
           connected: false,
           isEmailVerified: false,
           firstconnexion: false,
@@ -136,7 +126,6 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         setUser({
           id: response.data._id,
           email,
-          password,
           connected: true,
           isEmailVerified: response.data.isEmailVerified,
           firstconnexion: response.data.first_connexion,
@@ -155,7 +144,6 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       setUser({
         id: null,
         email,
-        password,
         connected: false,
         isEmailVerified: false,
         firstconnexion: null,
@@ -232,7 +220,7 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const signOut = async () => {
 
     await SecureStore.deleteItemAsync('login_jwt');
-    setUser({ id: 0, email: '', password: '', connected: false, isEmailVerified: false, firstconnexion: null, type: null, profile_picture: null});
+    setUser({ id: 0, email: '', connected: false, isEmailVerified: false, firstconnexion: null, type: null, profile_picture: null});
     setAuthState({
       accessToken: '',
       refreshToken: '',

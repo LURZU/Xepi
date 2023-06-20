@@ -1,25 +1,26 @@
 import React from 'react';
-import renderer from 'react-test-renderer';
-import { useContext } from 'react';
-import LoginInform  from '../../components/provider/LogInForm';
-// import { AuthContext } from '../../components/provider/AuthContext';
-import { render, fireEvent, findAllByType  } from '@testing-library/react-native';
-// import {create, TestRenderer }from 'react-test-renderer';
+import { render, fireEvent } from '@testing-library/react-native';
+import { LoginInform } from '../provider/LogInForm';
 
-
-  test('Context ', async () => {
-    const { getByTestId } = render(
-      <LoginInform />
-    );
-    const inputLog = getByTestId('auth-login'); 
-    fireEvent.changeText(inputLog, 'test');
-    const inputPass = getByTestId('auth-password'); 
-    fireEvent.changeText(inputPass, 'test');
-    const ModalAuth = getByTestId('auth-button');
-    fireEvent.press(ModalAuth);
-  
-    const modalVisibility = getByTestId('auth-modal');
-    const allModals = await findAllByType(modalVisibility.type);
-  
-    expect(allModals[1].props.visible).toBe(true);
+describe('LoginInform', () => {
+  it('renders correctly', () => {
+    const { getByText } = render(<LoginInform />);
+    expect(getByText('Connectez-vous')).toBeTruthy();
   });
+
+  it('has a login button', () => {
+    const { getByText } = render(<LoginInform />);
+    expect(getByText('Se connecter')).toBeTruthy();
+  });
+
+  it('shows an error message when email is not valid', () => {
+    const { getByText, getByPlaceholderText } = render(<LoginInform />);
+    const emailInput = getByPlaceholderText('Email');
+    fireEvent.changeText(emailInput, 'invalid email');
+    const loginButton = getByText('Se connecter');
+    fireEvent.press(loginButton);
+    expect(getByText('Adresse e-mail invalide')).toBeTruthy();
+  });
+
+});
+
