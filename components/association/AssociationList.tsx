@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Button, StyleSheet, Text, View, StatusBar, Platform, ScrollView, Modal, Pressable, TouchableOpacity, Linking } from 'react-native';
 import axios from 'axios';
 import { API_URL } from '@env';
 import * as Location from 'expo-location';
 import { Link, useNavigation } from "expo-router";
+import { AuthContext } from "../provider/AuthContext";
 
 //détecter le changement de screen avec le useEffect
 
@@ -31,6 +32,7 @@ const AssociationList = () => {
     const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
     //add navigate option
     const navigation = useNavigation();
+    const { verifyToken } = useContext(AuthContext);
     const [showModal, setShowModal] = useState(true);
     const [associations, setAssociations] = useState<Association[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
@@ -46,10 +48,10 @@ const AssociationList = () => {
             setlocation(currentLocation);
         }
         getPermission();
+
     }, []);
     
-    const handlePress = (categoryName) => {
-
+    const handlePress = (categoryName: string) => {
         hideModal();
         loadAssociations(categoryName);
     };

@@ -14,8 +14,9 @@ import { useNavigation } from 'expo-router';
 
 export default function LoginScreen() {
   const navigation = useNavigation();
+
   const [editProfile, setEditProfile] = useState(false);
-  const { user, signOut } = useContext(AuthContext);
+  const { user, signOut, verifyToken } = useContext(AuthContext);
   const [userData, setUserData] = useState({})
 
   const value_change = (value: string) => {
@@ -26,6 +27,10 @@ export default function LoginScreen() {
     navigation.navigate('index');
     signOut();
   }
+
+  useEffect(() => {
+    verifyToken();
+  }, []);
   
   const formData = async () => {
     try {

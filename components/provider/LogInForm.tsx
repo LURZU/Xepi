@@ -24,7 +24,7 @@ function LoginInform() {
       return false;
     }
 
-    // Vérification de l'email avec une expression régulière
+    // Verify if email is valide
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setEmailError('Adresse e-mail invalide');
@@ -59,7 +59,7 @@ function LoginInform() {
     if (user?.connected && user.isEmailVerified) {
       //set AuthContext user to true with value 
       setUser({
-        email: user?.email, password: user?.password, connected: user?.connected, isEmailVerified: true, firstconnexion: user?.firstconnexion, type: user?.type, id: user?.id, profile_picture: user?.profile_picture
+        email: user?.email, connected: user?.connected, isEmailVerified: true, firstconnexion: user?.firstconnexion, type: user?.type, id: user?.id, profile_picture: user?.profile_picture
       })
  
       setIsModalVisible(false);
@@ -69,7 +69,7 @@ function LoginInform() {
         { text: 'OK' },
       ]);
       setUser({
-        email: user?.email, password: user?.password, connected: user?.connected, isEmailVerified: false,  firstconnexion: user?.firstconnexion, type: user?.type, id: user?.id, profile_picture: user?.profile_picture
+        email: user?.email, connected: user?.connected, isEmailVerified: false,  firstconnexion: user?.firstconnexion, type: user?.type, id: user?.id, profile_picture: user?.profile_picture
       })
       setIsModalVisible(true);
     }
@@ -84,10 +84,9 @@ function LoginInform() {
     setIsLoading(true);
     try {
       signIn(email, password, false);
-      // Connexion réussie, effectuez les actions nécessaires ici
       closeModal();
     } catch (error) {
-      // Une erreur s'est produite lors de la connexion, gérez l'erreur ici
+      // provide bug with loading screen
       setIsLoading(false);
     }
   };

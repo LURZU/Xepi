@@ -4,20 +4,28 @@ import * as SecureStore from 'expo-secure-store';
 import jwt_decode from 'jwt-decode';
 import { Alert  } from 'react-native';
 import { API_URL } from '@env';
+import { useNavigation } from 'expo-router';
+
 
 
 type User = {
-  id: number|null;
+  id: string|null;
   email: string;
   connected: boolean;
   isEmailVerified: boolean;
   firstconnexion: boolean|null;
   type: string|null;
-  profile_picture: string|null;
+  profile_picture: string|null|undefined;
 };
 
 type DecodedToken = {
   exp: number;
+  isEmailVerified: boolean;
+  first_connexion: boolean;
+  _id: string;
+  email: string;
+  type: string;
+  profile_picture: string|null|undefined;
   // définir ici d'autres champs que vous attendez dans le token
 };
 
@@ -30,6 +38,8 @@ type AuthContextType = {
   setError: (error: {error_msg: string, code_error: number}) => void;
   GuestSignIn: (email: string, password: string, type: string) => void | null;
   authState: {accessToken: string, refreshToken: string, authenticated: boolean} | null;
+  verifyToken: () => Promise<boolean>;
+  isLoading: boolean;
 };
 
 
@@ -43,7 +53,8 @@ export const AuthContext = createContext<AuthContextType>({
   GuestSignIn: () => {},
   signOut: () => {},
   setError: () => {},
- 
+  verifyToken: async () => false,
+  isLoading: false
 });
 
 
@@ -70,15 +81,12 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
   const [authState, setAuthState] = useState({
     accessToken: '',
-    refreshToken: '',
-    authenticated: false,
   });
 
 
   const signIn = async (email: string, password: string) => {
-    setIsLoading(true); // Activer l'indicateur de chargement
-  
-    const request = APIurl + `/auth/connect/${email}/${password}`;
+    setIsLoading(true); // show load screen on the start of the request 
+    const request = `${API_URL}/auth/connect/${email}/${password}`;
     console.log(request);
     // Token
     try {
@@ -86,53 +94,30 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       const accessToken = response.data.access_token;
       await SecureStore.setItemAsync('login_jwt', accessToken);
       const { exp } = jwt_decode<DecodedToken>(accessToken);
-      
-      //Verify if the token is expired, else if it is not expired, we set the user state
-      if (exp < Date.now() / 1000) {
-        await SecureStore.deleteItemAsync('login_jwt');
-        //set the user accessToken to test it when we will use the app
-        setAuthState({
-          accessToken: '',
-          refreshToken: '',
-          authenticated: false,
-        });
-        setError({
-          error_msg: 'le code est expiré' as string,
-          code_error: 20 as number,
-        });
-        Alert.alert('Erreur de connexion', 'Identifiant ou mot de passe', [
-          { text: 'OK' },
-        ]);
-        setUser({
-          id: null,
-          email,
-          connected: false,
-          isEmailVerified: false,
-          firstconnexion: false,
-          type: null,
-          profile_picture: null,
-        });
+      const { isEmailVerified, first_connexion, type, _id, profile_picture } = jwt_decode<DecodedToken>(accessToken);
+      let profile_picture_set;
+      setError({
+        error_msg: 'noerror' as string,
+        code_error: 200 as number,
+      });
+      if(profile_picture === undefined){
+        profile_picture_set = null;
       } else {
-        console.log('Connexion : '+response.data.first_connexion);
-        setError({
-          error_msg: 'noerror' as string,
-          code_error: 200 as number,
-        });
-        setAuthState({
-          accessToken,
-          refreshToken: accessToken,
-          authenticated: true,
-        });
-        setUser({
-          id: response.data._id,
-          email,
-          connected: true,
-          isEmailVerified: response.data.isEmailVerified,
-          firstconnexion: response.data.first_connexion,
-          type: response.data.type,
-          profile_picture: response.data.profile_picture,
-        });
+        profile_picture_set = profile_picture;
       }
+      setUser({
+        id: _id,
+        email,
+        connected: true,
+        isEmailVerified: isEmailVerified,
+        firstconnexion: first_connexion,
+        type: type,
+        profile_picture: profile_picture,
+      });
+      setAuthState({
+        accessToken: accessToken,
+      });
+      
     } catch (error: any) {
       Alert.alert('Erreur de connexion', 'Identifiant ou mot de passe incorrect', [
         { text: 'OK' },
@@ -150,9 +135,40 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         type: null,
         profile_picture: null,
       });
+      setAuthState({
+        accessToken: '',
+      });
     } finally {
       setIsLoading(false); // Désactiver l'indicateur de chargement
     }
+  };
+
+  //Function wich verify if the token is expired or not
+  const verifyToken = async (): Promise<boolean> => {
+    const token = await SecureStore.getItemAsync('login_jwt');
+    const navigation = useNavigation();
+    if (token) {
+      const { exp } = jwt_decode<DecodedToken>(token);
+      if (exp < Date.now() / 1000) {
+        // Le jeton a expiré
+        await SecureStore.deleteItemAsync('login_jwt');
+        navigation.navigate('index');
+        setUser({
+          id: null,
+          email: '',
+          connected: false,
+          isEmailVerified: false,
+          firstconnexion: null,
+          type: null,
+          profile_picture: null,
+        });
+        return false;
+      } else {
+        // Le jeton est valide
+        return true;
+      }
+    }
+    return false;
   };
   
 // Création d'un compte utilisateur lors de la connexion en tant qu'invité
@@ -220,17 +236,15 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const signOut = async () => {
 
     await SecureStore.deleteItemAsync('login_jwt');
-    setUser({ id: 0, email: '', connected: false, isEmailVerified: false, firstconnexion: null, type: null, profile_picture: null});
+    setUser({ id: '0', email: '', connected: false, isEmailVerified: false, firstconnexion: null, type: null, profile_picture: null});
     setAuthState({
       accessToken: '',
-      refreshToken: '',
-      authenticated: false,
     });
 
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, signIn, signOut, error, GuestSignIn, setError, isLoading, authState }}>
+    <AuthContext.Provider value={{ user, setUser, signIn, signOut, error, GuestSignIn, setError, isLoading, verifyToken }}>
       {children}
     </AuthContext.Provider>
   );

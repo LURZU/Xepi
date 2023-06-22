@@ -1,7 +1,7 @@
 
 
 
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback, useContext, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 
 import LoginInform from '../../components/provider/LogInForm';
@@ -20,7 +20,11 @@ SplashScreen.preventAutoHideAsync();
 export default function App() {
 
 
-  const { user } = useContext(AuthContext);
+  const { user, verifyToken } = useContext(AuthContext);
+
+  useEffect(() => {
+    verifyToken();
+  }, []);
 
   const [fontsLoaded] = useFonts({
     'Inter': require('../../assets/fonts/Inter.ttf'),
@@ -35,6 +39,8 @@ export default function App() {
   if (!fontsLoaded) {
     return null;
   }
+
+
 
   // Enlever commentaire pour utiliser l'app sans le login
   // return(

@@ -50,14 +50,8 @@ function RootLayoutNav() {
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="login" options={{ presentation: 'modal', headerTitle: 'Profil', title: 'Profil' }} />
-          <Stack.Screen 
-            name="association" 
-            options={{ 
-                presentation: 'modal',  
-                title: 'Association',
-              }} 
-          />
-
+          <Stack.Screen name="association" options={{ presentation: 'modal',  title: 'Association'}} />
+          <Stack.Screen name="conditiongenerale" options={{ presentation: 'card', headerTitle: 'Condition générale', title: 'Condition générale' }} />
         </Stack>
         </AuthProvider>
       </ThemeProvider>

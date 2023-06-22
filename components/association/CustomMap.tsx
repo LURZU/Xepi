@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { StyleSheet, View, StatusBar, Platform } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { API_URL } from '@env';
 import axios from 'axios';
 import AssociationScreen  from "../association/AssociationScreen";
+import { AuthContext } from "../provider/AuthContext";
+
 
 interface MarkerData {
     key: string;
@@ -18,6 +20,8 @@ interface MarkerData {
 
 const CustomMap = () => {
     const statusBarHeight = Platform.OS === "android" ? StatusBar.currentHeight : 0;
+    const { verifyToken } = useContext(AuthContext);
+
 
     const [markers, setMarkers] = useState<MarkerData[]>([]);
 
@@ -33,7 +37,7 @@ const CustomMap = () => {
         }
     };
 
-
+    
     useEffect(() => {
         const fetchMarkers = async () => {
             const oAssociations = await getAssociations();
@@ -58,6 +62,13 @@ const CustomMap = () => {
         };
 
         fetchMarkers();
+
+
+    }, []);
+
+
+    useEffect(() => {
+        verifyToken();
     }, []);
 
     return (

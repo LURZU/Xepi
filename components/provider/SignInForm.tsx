@@ -6,6 +6,7 @@ import HideInput from '../input/HideInput';
 import Checkbox from 'expo-checkbox';
 
 import { AuthContext } from './AuthContext'
+import { Link } from 'expo-router';
 
 function SignInForm(props: any) {
   const { GuestSignIn, error, isLoading } = useContext(AuthContext);
@@ -143,7 +144,7 @@ function SignInForm(props: any) {
                   onValueChange={setChecked}
                   color={isChecked ? '#4630EB' : undefined}
                 />
-                <Text style={styles.paragraph}>J'ai lu et j'accepte les conditions générales d'utilisation du service auquel je souscris</Text>
+                <Text style={styles.paragraph}>J'ai lu et j'accepte les <Link href="/" style={{textDecorationLine: 'underline'}}>conditions générales</Link> d'utilisation du service auquel je souscris</Text>
                 {passwordError ? <Text style={styles.errorText}>Veuillez cocher cette case</Text> : null}
               </View>
 
